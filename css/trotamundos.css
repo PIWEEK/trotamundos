@@ -62,7 +62,6 @@ body {
 }
 
 .draggable {
-    cursor: move;
     border: 1px dotted white;
     color: white;
     border-radius: 10px;
@@ -76,6 +75,7 @@ body {
 }
 
 .icon {
+    cursor: move;
     margin-right: 25px;
     width: 96px;
     height: 96px;

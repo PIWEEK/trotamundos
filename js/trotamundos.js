@@ -4,12 +4,13 @@ function initSortable() {
     Sortable.create(listContainer, {
         animation: 150,
         draggable: '.draggable',
+        handle: '.icon',
         dragoverBubble: true,
     });
 }
 
 
-function openControls(){
+function openControls() {
     document.getElementById('ctrl-plus').classList.add('hidden');
 
     document.getElementById('ctrl-text').classList.remove('hidden');
@@ -21,7 +22,7 @@ function openControls(){
     document.getElementById('controls').classList.add('open');
 }
 
-function closeControls(){
+function closeControls() {
     document.getElementById('ctrl-plus').classList.remove('hidden');
 
     document.getElementById('ctrl-text').classList.add('hidden');
@@ -37,7 +38,7 @@ function closeControls(){
 
 
 
-function initControls(){
+function initControls() {
     document.getElementById('ctrl-plus').addEventListener('click', openControls, false);
     document.getElementById('ctrl-cancel').addEventListener('click', closeControls, false);
 
@@ -45,17 +46,18 @@ function initControls(){
 
 
 
+function initServiceWorker() {
+    navigator.serviceWorker
+        .register("/service-worker.js")
+        .then(res => console.log("service worker registered"))
+        .catch(err => console.log("service worker not registered", err));
 
-
-
-
-
-
-
+}
 
 
 
 window.onload = function (e) {
+    initServiceWorker();
     initSortable();
     initControls();
 }
