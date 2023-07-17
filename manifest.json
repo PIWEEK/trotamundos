@@ -1,0 +1,18 @@
+{
+    "short_name": "Trotamundos",
+    "name": "Trotamundos",
+    "icons": [
+      {
+        "src": "/icons/trotamundos-black.png",
+        "type": "image/png",
+        "sizes": "96x96"
+      }
+    ],
+    "id": "/?source=pwa",
+    "start_url": "/?source=pwa",
+    "background_color": "#000000",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#000000",
+    "description": "Trotamundos"
+  }
