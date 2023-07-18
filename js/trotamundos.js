@@ -1,6 +1,8 @@
 ////////////////////
 var tripsList = {};
 var currentTripId = null;
+var currentSectionId = null;
+var currentSection = null;
 
 if (localStorage.tripsList) {
     tripsList = JSON.parse(localStorage.tripsList);
@@ -101,6 +103,10 @@ function confirmDeleteTrip() {
 function initTripControls() {
     document.getElementById('ctrl-plus').addEventListener('click', openControls, false);
     document.getElementById('ctrl-cancel').addEventListener('click', closeControls, false);
+    document.getElementById('ctrl-text').addEventListener('click', openEditText, false);
+
+
+
 
     document.getElementById('go-home').addEventListener('click', goHome, false);
     document.getElementById('trip-menu-icon').addEventListener('click', openTripMenu, false);
@@ -184,46 +190,41 @@ function openViewTripEv(ev) {
 }
 
 function reloadSection(data) {
-    /*trip = document.createElement('div');
-    trip.classList.add('draggable');
 
+    section = document.createElement('div');
+    section.classList.add('draggable');
+    img = document.createElement('img');
+    img.classList.add('icon');
 
-    image = document.createElement('img');
-    image.classList.add('icon');
-    image.src = 'icons/trotamundos.png'
-    trip.appendChild(image);
+    if ('text' == data.type){
+        img.src = 'icons/font.png';
+        text = document.createElement('div');
+        text.classList.add('container');
+        text.classList.add('text-container');
+        text.innerText = data.text;
 
-    title = document.createElement('div');
-    title.classList.add('container');
-    title.classList.add('text-container');
-    title.dataset.tripId = data.id;
-    title.addEventListener('click', openViewTripEv, false);
+        text.dataset.sectionId = data.id;
+        text.addEventListener('click', openEditTextEv, false);
 
-    tripName =  document.createElement('div');
-    tripName.classList.add('text-title');
-    tripName.innerHTML = data.name;
-
-    tripDate =  document.createElement('div');
-    tripDate.classList.add('date-title');
-    tripDate.innerHTML = data.date;
-
-    title.appendChild(tripName);
-    title.appendChild(tripDate);
-    trip.appendChild(title);
-
-    document.getElementById('trips-container').appendChild(trip);*/
+        section.appendChild(img);
+        section.appendChild(text);
+    }
+    document.getElementById('sections-container').appendChild(section);
 }
 
 function reloadSections(sections) {
     var sectionsContainer = document.getElementById('sections-container');
     sectionsContainer.innerHTML = '';
 
-    sections.forEach(reloadSection);
+    Object.values(sections).forEach(reloadSection);
 
     initSectionsSortable(sectionsContainer);
 }
 
 function openViewTrip(tripId) {
+    closeControls();
+    currentSectionId = null;
+
     var trip = tripsList[tripId];
     currentTripId = tripId;
 
@@ -239,8 +240,10 @@ function openViewTrip(tripId) {
 
 function openEditTrip() {
     var trip;
+    currentSection = "trip";
     if (currentTripId == null) {
         document.getElementById('section-title').innerHTML = 'Nuevo viaje';
+        document.getElementById('trip-name').value = '';
         document.getElementById('trip-date').valueAsDate = new Date();
         document.getElementById('trip-id').value = uuidv4();
         document.getElementById('trip-theme').selectedIndex = 0;
@@ -256,19 +259,27 @@ function openEditTrip() {
     document.getElementById('home-screen').classList.add('hidden');
     document.getElementById('trip-screen').classList.add('hidden');
     document.getElementById('section-screen').classList.remove('hidden');
+    document.getElementById('section-icon').src = 'icons/trotamundos.png';
 
     document.getElementById('section-text').classList.add('hidden');
     document.getElementById('section-trip-data').classList.remove('hidden');
 }
 
+function saveSection() {
+    if ("trip" == currentSection){
+        saveTrip();
+    } else if ("text" == currentSection){
+        saveText();
+    }
+}
 
 function saveTrip() {
-    if (document.getElementById('section-screen').checkValidity()) {
+    if (document.getElementById('section-trip-data').checkValidity()) {
         var trip;
         if (currentTripId != null) {
             trip = tripsList[currentTripId];
         } else {
-            trip = { sections: [] };
+            trip = { sections: {} };
         }
 
         trip.id = document.getElementById('trip-id').value;
@@ -279,7 +290,61 @@ function saveTrip() {
         tripsList[trip.id] = trip;
         save();
         openViewTrip(trip.id);
+    } else {
+        document.getElementById('section-trip-data').reportValidity();
     }
+}
+
+function saveText() {
+    if (document.getElementById('section-text').checkValidity()) {
+        var trip = tripsList[currentTripId];
+        var section;
+        if (currentSectionId != null) {
+            section = trip.sections[currentSectionId];
+        } else {
+            section = {id: uuidv4(), type: "text"};
+        }
+
+        section.text = document.getElementById('trip-text').value;
+
+        trip.sections[section.id] = section;
+        tripsList[trip.id] = trip;
+        save();
+
+        openViewTrip(trip.id);
+    } else {
+        document.getElementById('section-text').reportValidity();
+    }
+}
+
+
+function openEditTextEv(ev) {
+    currentSectionId = ev.currentTarget.dataset.sectionId;
+    openEditText();
+}
+
+function openEditText() {
+    currentSection = "text";
+    var trip = tripsList[currentTripId];
+    console.log(currentSectionId);
+    console.log(trip);
+    if (currentSectionId == null) {
+        document.getElementById('trip-text').value = '';
+    } else {
+        document.getElementById('trip-text').value = trip.sections[currentSectionId].text;
+    }
+
+    document.getElementById('section-title').innerHTML = trip.name;
+    document.getElementById('section-icon').src = 'icons/font.png';
+
+
+    document.getElementById('home-screen').classList.add('hidden');
+    document.getElementById('trip-screen').classList.add('hidden');
+    document.getElementById('section-screen').classList.remove('hidden');
+
+
+    document.getElementById('section-text').classList.remove('hidden');
+    document.getElementById('section-trip-data').classList.add('hidden');
 }
 
 
@@ -288,12 +353,8 @@ function initHomeControls() {
 }
 
 function initSectionControls() {
-    document.getElementById('section-save').addEventListener('click', saveTrip, false);
+    document.getElementById('section-save').addEventListener('click', saveSection, false);
     document.getElementById('section-cancel').addEventListener('click', goBack, false);
-
-    document.getElementById('section-screen').addEventListener('submit', function (event) {
-        event.preventDefault();
-    });
 }
 
 window.onload = function (e) {

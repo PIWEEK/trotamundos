@@ -62,42 +62,50 @@
 
 
 		<!------------------------------  SECTION  ------------------------------------------>
-		<form id="section-screen" class="section hidden">
+		<div id="section-screen" class="section hidden">
 			<div id="section-controls" class="controls open">
 				<img id="section-cancel" src="icons/cancel.png">
-				<button id="section-save"><img  src="icons/save.png"></button>
+				<img id="section-save" src="icons/save.png">
 			</div>
 			<div class="title">
-				<img class="icon-title" src="icons/trotamundos.png">
+				<img id="section-icon" class="icon-title" src="icons/trotamundos.png">
 				<div class="container title-container">
 					<div id="section-title" class="text-title"></div>
 				</div>
 			</div>
-			<div id="section-trip-data">
-					<div class="form-line">
-						<label for="trip-name">Nombre del viaje: </label>
-					</div>
-					<div class="form-line">
-						<input type="text" id="trip-name" name="trip-name" required />
-					</div>
-					<div class="form-line">
-						<label for="trip-date">Fecha: </label>
-					</div>
-					<div class="form-line">
-						<input type="date" id="trip-date" name="trip-date" required />
-					</div>
-					<div class="form-line">
-						<label for="trip-theme">Tema: </label>
-					</div>
-					<div class="form-line">
-						<select id="trip-theme" name="trip-theme">
-							<option value="green">Verde bosque</option>
-							<option value="blue">Azul monta&ntilde;a</option>
-							<option value="yellow">Amarillo playa</option>
-						</select>
-					</div>
-					<input type="hidden" id="trip-id" />
-			</div>
+			<form id="section-trip-data" class="hidden">
+				<div class="form-line">
+					<label for="trip-name">Nombre del viaje: </label>
+				</div>
+				<div class="form-line">
+					<input type="text" id="trip-name" name="trip-name" required />
+				</div>
+				<div class="form-line">
+					<label for="trip-date">Fecha: </label>
+				</div>
+				<div class="form-line">
+					<input type="date" id="trip-date" name="trip-date" required />
+				</div>
+				<div class="form-line">
+					<label for="trip-theme">Tema: </label>
+				</div>
+				<div class="form-line">
+					<select id="trip-theme" name="trip-theme">
+						<option value="green">Verde bosque</option>
+						<option value="blue">Azul monta&ntilde;a</option>
+						<option value="yellow">Amarillo playa</option>
+					</select>
+				</div>
+				<input type="hidden" id="trip-id" />
+			</form>
+			<form id="section-text" class="hidden">
+				<div class="form-line">
+					<label for="trip-text">Texto: </label>
+				</div>
+				<div class="form-line">
+					<textarea id="trip-text" name="trip-text" required></textarea>
+				</div>
+			</form>
 		</div>
 	</div>
 	<div id="overlay" class="hidden" />
