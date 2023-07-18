@@ -32,7 +32,16 @@ body {
     -o-transition: width 0.25s ease-in-out;
     transition: width 0.25s ease-in-out;
 
-    width:800px;
+    width: 800px;
+}
+
+.controls img {
+    cursor: pointer;
+}
+
+.controls button {
+    border: 0;
+    background: transparent;
 }
 
 .hidden {
@@ -72,6 +81,7 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    cursor: hand;
 }
 
 .icon {
@@ -128,4 +138,60 @@ body {
 
 .gallery-container img {
     height: 150px
+}
+
+
+/****************** HOME ****************************/
+
+
+.home-controls {
+    position: fixed;
+    bottom: 20px;
+    width: 128px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    border-radius: 70px;
+}
+
+.home-controls img {
+    cursor: pointer;
+}
+
+.home .title-container {
+    align-items: center;
+    justify-content: center;
+}
+
+.home .draggable {
+    height: 100px;
+    cursor: pointer;
+}
+
+.home .draggable .icon {
+    width: 75px;
+    height: 75px;
+}
+
+.home .text-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/****************** SECTION ****************************/
+
+.section {
+    color: white;
+}
+
+.section .title {
+    margin-bottom: 20px;
+}
+
+.section .form-line {
+    margin-bottom: 20px;
+}
+
+.section input {
+    width: 100%;
+    font-size: 48px;
 }
