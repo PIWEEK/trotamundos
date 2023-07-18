@@ -141,6 +141,10 @@ body {
     height: 150px
 }
 
+#trip-title {
+    cursor: pointer;
+}
+
 #trip-screen {
     position: relative;
 }
@@ -232,6 +236,11 @@ body {
 }
 
 .section input {
+    width: 100%;
+    font-size: 48px;
+}
+
+.section select {
     width: 100%;
     font-size: 48px;
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-ES">
 
 <head>
 	<title>Trotamundos</title>
@@ -36,7 +36,7 @@
 			</div>
 			<div class="title">
 				<img id="go-home" class="icon-title" src="icons/trotamundos.png">
-				<div class="container title-container">
+				<div id="trip-title" class="container title-container">
 					<div id="detail-trip-name" class="text-title"></div>
 					<div id="detail-trip-date" class="date-title"></div>
 				</div>
@@ -85,6 +85,16 @@
 					</div>
 					<div class="form-line">
 						<input type="date" id="trip-date" name="trip-date" required />
+					</div>
+					<div class="form-line">
+						<label for="trip-theme">Tema: </label>
+					</div>
+					<div class="form-line">
+						<select id="trip-theme" name="trip-theme">
+							<option value="green">Verde bosque</option>
+							<option value="blue">Azul monta&ntilde;a</option>
+							<option value="yellow">Amarillo playa</option>
+						</select>
 					</div>
 					<input type="hidden" id="trip-id" />
 			</div>
