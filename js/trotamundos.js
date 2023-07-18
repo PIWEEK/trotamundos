@@ -6,9 +6,6 @@ if (localStorage.tripsList) {
     tripsList = JSON.parse(localStorage.tripsList);
 }
 
-var lastScreen = {
-    screen: 'home'
-}
 ////////////////////
 
 function save() {
@@ -21,7 +18,7 @@ function uuidv4() {
     );
 }
 
-function formatDate(strDate){
+function formatDate(strDate) {
     let date = new Date(strDate)
     let day = date.getDate();
     let month = date.getMonth() + 1;
@@ -154,6 +151,7 @@ function reloadTrip(data) {
 }
 
 function reloadTrips() {
+    console.log("reloadTrips")
     var tripsContainer = document.getElementById('trips-container');
     tripsContainer.innerHTML = '';
 
@@ -172,27 +170,14 @@ function goHome() {
 
 
 function goBack() {
-    if ('home' == lastScreen.screen) {
+    if (currentTripId == null) {
         goHome();
     } else {
         openViewTrip(currentTripId);
     }
 }
 
-function openAddTrip() {
-    document.getElementById('home-screen').classList.add('hidden');
-    document.getElementById('trip-screen').classList.add('hidden');
-    document.getElementById('section-screen').classList.remove('hidden');
 
-    document.getElementById('section-title').innerHTML = 'Nuevo viaje';
-    document.getElementById('trip-date').valueAsDate = new Date();
-    document.getElementById('trip-id').value = uuidv4();
-
-
-    lastScreen = {
-        screen: 'home'
-    }
-}
 
 function openViewTripEv(ev) {
     openViewTrip(ev.currentTarget.dataset.tripId);
@@ -251,22 +236,29 @@ function openViewTrip(tripId) {
     document.getElementById('section-screen').classList.add('hidden');
 }
 
+
 function openEditTrip() {
-    var trip = tripsList[currentTripId];
+    var trip;
+    if (currentTripId == null) {
+        document.getElementById('section-title').innerHTML = 'Nuevo viaje';
+        document.getElementById('trip-date').valueAsDate = new Date();
+        document.getElementById('trip-id').value = uuidv4();
+        document.getElementById('trip-theme').selectedIndex = 0;
+    } else {
+        trip = tripsList[currentTripId];
+        document.getElementById('section-title').innerHTML = trip.name;
+        document.getElementById('trip-name').value = trip.name;
+        document.getElementById('trip-date').value = trip.date;
+        document.getElementById('trip-id').value = trip.id;
+        document.getElementById('trip-theme').value = trip.theme;
+    }
 
     document.getElementById('home-screen').classList.add('hidden');
     document.getElementById('trip-screen').classList.add('hidden');
     document.getElementById('section-screen').classList.remove('hidden');
 
-    document.getElementById('section-title').innerHTML = trip.name;
-    document.getElementById('trip-name').value = trip.name;
-    document.getElementById('trip-date').value = trip.date;
-    document.getElementById('trip-id').value = trip.id;
-    document.getElementById('trip-theme').value = trip.theme;
-
-    lastScreen = {
-        screen: 'trip'
-    }
+    document.getElementById('section-text').classList.add('hidden');
+    document.getElementById('section-trip-data').classList.remove('hidden');
 }
 
 
@@ -276,7 +268,7 @@ function saveTrip() {
         if (currentTripId != null) {
             trip = tripsList[currentTripId];
         } else {
-            trip = {sections: []};
+            trip = { sections: [] };
         }
 
         trip.id = document.getElementById('trip-id').value;
@@ -292,7 +284,7 @@ function saveTrip() {
 
 
 function initHomeControls() {
-    document.getElementById('add-trip').addEventListener('click', openAddTrip, false);
+    document.getElementById('add-trip').addEventListener('click', openEditTrip, false);
 }
 
 function initSectionControls() {
