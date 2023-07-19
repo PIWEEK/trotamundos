@@ -96,6 +96,8 @@ var currentTripId = null;
 var currentSectionId = null;
 var currentSection = null;
 
+var sectionsSortable = null;
+
 if (localStorage.tripsList) {
     tripsList = JSON.parse(localStorage.tripsList);
 }
@@ -104,6 +106,14 @@ if (localStorage.tripsList) {
 
 function save() {
     localStorage.tripsList = JSON.stringify(tripsList);
+}
+
+function getSection(trip, sectionId){
+    for (var i=0; i<trip.sections.length;i++){
+        if (sectionId == trip.sections[i].id){
+            return trip.sections[i];
+        }
+    }
 }
 
 function uuidv4() {
@@ -140,12 +150,29 @@ function initTripsSortable(tripsContainer) {
 }
 
 function initSectionsSortable(sectionsContainer) {
-    Sortable.create(sectionsContainer, {
+    if (sectionsSortable != null) {
+        sectionsSortable.destroy();
+    }
+
+    sectionsSortable = Sortable.create(sectionsContainer, {
         animation: 150,
         draggable: '.draggable',
         handle: '.icon',
         dragoverBubble: true,
+        onEnd: updateSectionOrder
     });
+}
+
+function updateSectionOrder(){
+    console.log('updating...')
+    var sections = document.getElementsByClassName('section-item');
+    var trip = tripsList[currentTripId];
+    var sectionId;
+    for (var i=0; i<sections.length; i++){
+        sectionId = sections[i].dataset.sectionId;
+        trip.sections[sectionId].pos = i;
+    }
+    save()
 }
 
 
@@ -284,7 +311,9 @@ function openViewTripEv(ev) {
 function reloadSection(data) {
 
     section = document.createElement('div');
+    section.dataset.sectionId = data.id;
     section.classList.add('draggable');
+    section.classList.add('section-item');
     img = document.createElement('img');
     img.classList.add('icon');
 
@@ -342,7 +371,10 @@ function reloadSections(sections) {
         sectionsContainer.removeChild(sectionsContainer.firstChild);
     }
 
-    Object.values(sections).forEach(reloadSection);
+   var sections = Object.values(sections)
+   sections.sort((a, b) => a.pos - b.pos);
+
+   sections.forEach(reloadSection);
 
     initSectionsSortable(sectionsContainer);
 }
@@ -438,10 +470,13 @@ function saveText() {
         if (currentSectionId != null) {
             section = trip.sections[currentSectionId];
         } else {
-            section = { id: uuidv4(), type: "text" };
+            section = { id: uuidv4(), type: "text", pos: Object.keys(trip.sections).length};
         }
 
         section.text = document.getElementById('trip-text').value;
+
+
+
 
         trip.sections[section.id] = section;
         tripsList[trip.id] = trip;
@@ -460,7 +495,7 @@ function saveImage() {
         if (currentSectionId != null) {
             section = trip.sections[currentSectionId];
         } else {
-            section = { id: uuidv4(), type: "image" };
+            section = { id: uuidv4(), type: "image", pos: Object.keys(trip.sections).length };
         }
 
 
@@ -491,7 +526,7 @@ function saveSubtitle() {
         if (currentSectionId != null) {
             section = trip.sections[currentSectionId];
         } else {
-            section = { id: uuidv4(), type: "subtitle" };
+            section = { id: uuidv4(), type: "subtitle", pos: Object.keys(trip.sections).length };
         }
 
         section.subtitle = document.getElementById('trip-subtitle').value;
