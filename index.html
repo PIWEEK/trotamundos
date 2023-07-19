@@ -5,13 +5,14 @@
 	<title>Trotamundos</title>
 	<script src="libs/Sortable1-15.min.js"></script>
 	<link rel="stylesheet" href="css/trotamundos.css">
+	<link rel="stylesheet" href="css/preview.css">
 	<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
 	<meta name="theme-color" media="(prefers-color-scheme: dark)" content="black">
 	<link rel="manifest" href="manifest.json">
 </head>
 
 <body>
-	<div class="content">
+	<div id="trotamundos-editor" class="content">
 		<div id="home-screen" class="home">
 			<div id="home-controls" class="home-controls">
 				<img id="add-trip" src="icons/plus.png">
@@ -156,6 +157,21 @@
 				</div>
 			</div>
 		</div>
+	</div>
+	<div id="trotamundos-preview" class="hidden">
+		<div class="preview-blog-title">
+			TROTAMUNDOS
+		</div>
+		<div class="preview-post-title-container">
+			<div id="preview-post-title">Viaje a las lagunas de somiedo</div>
+			<div id="preview-post-date" class="date">01.01.2020</div>
+		</div>
+		<div id="preview-sections-container">
+		</div>
+		<div id="preview-go-back">
+			<img src="icons/go-back.png" />
+		</div>
+
 	</div>
 	<div id="overlay" class="hidden" />
 	<script src="js/trotamundos.js"></script>

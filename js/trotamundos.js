@@ -247,9 +247,23 @@ function initTripControls() {
     document.getElementById('trip-menu-icon').addEventListener('click', openTripMenu, false);
     document.getElementById('overlay').addEventListener('click', closeMenu, false);
 
+    document.getElementById('preview-trip').addEventListener('click', previewTrip, false);
     document.getElementById('delete-trip').addEventListener('click', confirmDeleteTrip, false);
 
     document.getElementById('trip-title').addEventListener('click', openEditTrip, false);
+
+
+}
+
+function previewTrip(){
+    closeMenu();
+    var trip = tripsList[currentTripId];
+    reloadPreviewSections(trip.sections);
+    document.getElementById('preview-post-title').innerText = trip.name
+    document.getElementById('preview-post-date').innerText = formatDate(trip.date)
+    document.getElementById('trotamundos-editor').classList.add('hidden');
+    document.getElementById('trotamundos-preview').classList.remove('hidden');
+    document.body.style.backgroundColor = "white";
 }
 
 function initServiceWorker() {
@@ -698,6 +712,59 @@ window.onload = function (e) {
     initHomeControls();
     initTripControls();
     initSectionControls();
+    initPreviewControls();
 
     goHome();
+}
+
+
+
+//////////////// PREVIEW /////////////////////
+
+function initPreviewControls() {
+    document.getElementById('preview-go-back').addEventListener('click', closePreview , false);
+}
+
+function closePreview(){
+    document.body.style.backgroundColor = "black";
+    document.getElementById('trotamundos-preview').classList.add('hidden');
+    document.getElementById('trotamundos-editor').classList.remove('hidden');
+}
+
+
+
+function reloadPreviewSection(data) {
+
+    section = document.createElement('div');
+    section.dataset.sectionId = data.id;
+
+    if ('text' == data.type) {
+        section.classList.add('preview-text');
+        section.innerText = data.text;
+    } else if ('image' == data.type) {
+        section.classList.add('preview-image');
+        photo = document.createElement('img');
+        photo.id = 'preview-photo-' + data.imageId;
+        section.appendChild(photo);
+        loadImageFromDB(data.imageId, photo.id);
+    } else if ('subtitle' == data.type) {
+        section.classList.add('preview-subtitle');
+        text = document.createElement('h2');
+        text.innerText = data.subtitle;
+        section.appendChild(text);
+    }
+    document.getElementById('preview-sections-container').appendChild(section);
+}
+
+function reloadPreviewSections(sections) {
+    var sectionsContainer = document.getElementById('preview-sections-container');
+
+    while (sectionsContainer.firstChild) {
+        sectionsContainer.removeChild(sectionsContainer.firstChild);
+    }
+
+   var sections = Object.values(sections)
+   sections.sort((a, b) => a.pos - b.pos);
+
+   sections.forEach(reloadPreviewSection);
 }

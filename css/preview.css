@@ -1,0 +1,65 @@
+#trotamundos-preview {
+    width: 1000px;
+    text-align: center;
+    height: 100%;
+    background-color: white;
+    font-family: Arial, sans-serif;
+}
+
+.preview-blog-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 165px;
+    font-size: 35px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.preview-post-title-container {
+    font-size: 6.5rem;
+    /*background-image: url("/images/title-bg.jpg"); */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    font-family: Georgia, serif;
+    font-weight: 400;
+    margin: 20px 0;
+    padding: 0 60px;
+}
+
+.preview-post-title-container .date {
+    color: grey;
+    font-size: 3rem;
+}
+
+#preview-sections-container{
+    text-align: justify;
+    margin: 0 25px;
+    font-size: 20px;
+    font-family: Helvetica, Geneva, sans-serif;
+}
+
+.preview-image, .preview-text {
+    margin-bottom: 50px;
+}
+
+.preview-image img {
+    width: 100%;
+}
+
+.preview-subtitle h2 {
+    font-size: 3rem;
+}
+
+#preview-go-back {
+    position: fixed;
+    top: 50px;
+    left: 50px;
+}
+
