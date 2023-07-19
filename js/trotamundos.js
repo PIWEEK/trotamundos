@@ -205,9 +205,15 @@ function openTripMenu() {
     document.getElementById('trip-menu').classList.remove('hidden');
 }
 
-function closeTripMenu() {
+function closeMenu() {
     document.getElementById('overlay').classList.add('hidden');
     document.getElementById('trip-menu').classList.add('hidden');
+    document.getElementById('section-menu').classList.add('hidden');
+}
+
+function openSectionMenu() {
+    document.getElementById('overlay').classList.remove('hidden');
+    document.getElementById('section-menu').classList.remove('hidden');
 }
 
 function confirmDeleteTrip() {
@@ -216,7 +222,18 @@ function confirmDeleteTrip() {
         save();
         goHome();
     }
-    closeTripMenu();
+    closeMenu();
+}
+
+function confirmDeleteSection() {
+    if (confirm("¿Seguro que quieres borrar esta sección?") == true) {
+        var trip = tripsList[currentTripId];
+        delete trip.sections[currentSectionId];
+        reloadSections(trip.sections);
+        updateSectionOrder();
+        openViewTrip();
+    }
+    closeMenu();
 }
 
 function initTripControls() {
@@ -228,7 +245,7 @@ function initTripControls() {
 
     document.getElementById('go-home').addEventListener('click', goHome, false);
     document.getElementById('trip-menu-icon').addEventListener('click', openTripMenu, false);
-    document.getElementById('overlay').addEventListener('click', closeTripMenu, false);
+    document.getElementById('overlay').addEventListener('click', closeMenu, false);
 
     document.getElementById('delete-trip').addEventListener('click', confirmDeleteTrip, false);
 
@@ -570,8 +587,10 @@ function openEditText() {
     console.log(trip);
     if (currentSectionId == null) {
         document.getElementById('trip-text').value = '';
+        document.getElementById('section-menu-icon').classList.add('hidden');
     } else {
         document.getElementById('trip-text').value = trip.sections[currentSectionId].text;
+        document.getElementById('section-menu-icon').classList.remove('hidden');
     }
 
     document.getElementById('section-title').innerHTML = trip.name;
@@ -593,10 +612,11 @@ function openEditImage() {
     if (currentSectionId == null) {
         document.getElementById('trip-image').value = '';
         document.getElementById('trip-image-preview').src = 'icons/photo-placeholder.png';
+        document.getElementById('section-menu-icon').classList.add('hidden');
     } else {
         section = trip.sections[currentSectionId]
         loadImageFromDB(section.imageId, 'trip-image-preview');
-
+        document.getElementById('section-menu-icon').classList.remove('hidden');
     }
 
     document.getElementById('section-title').innerHTML = trip.name;
@@ -616,8 +636,10 @@ function openEditSubtitle() {
     var trip = tripsList[currentTripId];
     if (currentSectionId == null) {
         document.getElementById('trip-subtitle').value = '';
+        document.getElementById('section-menu-icon').classList.add('hidden');
     } else {
         document.getElementById('trip-subtitle').value = trip.sections[currentSectionId].subtitle;
+        document.getElementById('section-menu-icon').classList.remove('hidden');
     }
 
     document.getElementById('section-title').innerHTML = trip.name;
@@ -664,6 +686,8 @@ function initSectionControls() {
     document.getElementById('section-cancel').addEventListener('click', goBack, false);
 
     document.getElementById('trip-image').addEventListener('change', previewImage);
+    document.getElementById('section-menu-icon').addEventListener('click', openSectionMenu, false);
+    document.getElementById('delete-section').addEventListener('click', confirmDeleteSection, false);
 
 
 }
