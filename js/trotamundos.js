@@ -200,21 +200,29 @@ function closeControls() {
     document.getElementById('controls').classList.remove('open');
 }
 
+function openSectionMenu() {
+    document.getElementById('overlay').classList.remove('hidden');
+    document.getElementById('section-menu').classList.remove('hidden');
+}
+
 function openTripMenu() {
     document.getElementById('overlay').classList.remove('hidden');
     document.getElementById('trip-menu').classList.remove('hidden');
+}
+
+function openHomeMenu() {
+    document.getElementById('overlay').classList.remove('hidden');
+    document.getElementById('home-menu').classList.remove('hidden');
 }
 
 function closeMenu() {
     document.getElementById('overlay').classList.add('hidden');
     document.getElementById('trip-menu').classList.add('hidden');
     document.getElementById('section-menu').classList.add('hidden');
+    document.getElementById('home-menu').classList.add('hidden');
 }
 
-function openSectionMenu() {
-    document.getElementById('overlay').classList.remove('hidden');
-    document.getElementById('section-menu').classList.remove('hidden');
-}
+
 
 function confirmDeleteTrip() {
     if (confirm("¿Seguro que quieres borrar este viaje?") == true) {
@@ -702,9 +710,28 @@ function handleImagePreview(inputId, containerId) {
     }
 }
 
+function publish(){
+    const formData = new FormData();
+    formData.append("data", "hello world");
+
+    fetch("/api/print", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+
 
 function initHomeControls() {
     document.getElementById('add-trip').addEventListener('click', openEditTrip, false);
+    document.getElementById('home-menu-icon').addEventListener('click', openHomeMenu, false);
+    document.getElementById('home-publish').addEventListener('click', publish, false);
 }
 
 function initSectionControls() {
