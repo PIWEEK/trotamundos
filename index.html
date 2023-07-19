@@ -106,6 +106,40 @@
 					<textarea id="trip-text" name="trip-text" required></textarea>
 				</div>
 			</form>
+			<form id="section-image" class="hidden">
+				<div class="form-line">
+					<div class="image-type">
+						<div id="image-type-1" class="img-type-container selected">
+							<img src="icons/photo-1.png" />
+							<div class="img-type-overlay"></div>
+						</div>
+						<div id="image-type-2a" class="img-type-container">
+							<img src="icons/photo-2.png" />
+							<div class="img-type-overlay"></div>
+						</div>
+						<div id="image-type-3a" class="img-type-container">
+							<img src="icons/photo-3a.png" />
+							<div class="img-type-overlay"></div>
+						</div>
+						<div id="image-type-3b" class="img-type-container">
+							<img src="icons/photo-3b.png" />
+							<div class="img-type-overlay"></div>
+						</div>
+						<div id="image-type-4" class="img-type-container">
+							<img src="icons/photo-4.png" />
+							<div class="img-type-overlay"></div>
+						</div>
+
+					</div>
+					<label for="trip-image">
+						<img id="trip-image-preview" src="icons/photo-placeholder.png" />
+					</label>
+				</div>
+				<div class="form-line">
+					<input type="file" id="trip-image" name="trip-image" required accept="image/*">
+				</div>
+
+			</form>
 		</div>
 	</div>
 	<div id="overlay" class="hidden" />

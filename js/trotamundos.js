@@ -1,3 +1,95 @@
+/////// DB ///////
+// Open the IndexedDB database
+const dbName = 'imageDB';
+const dbVersion = 1;
+const imageStoreName = 'images';
+
+let db;
+const request = indexedDB.open(dbName, dbVersion);
+
+request.onerror = (event) => {
+    console.error("IndexedDB error:", event.target.error);
+};
+
+request.onsuccess = (event) => {
+    db = event.target.result;
+    console.log("IndexedDB opened successfully!");
+};
+
+request.onupgradeneeded = (event) => {
+    db = event.target.result;
+    if (!db.objectStoreNames.contains(imageStoreName)) {
+        db.createObjectStore(imageStoreName, { keyPath: 'id' });
+    }
+};
+
+function saveImageDB(imageInputId, imageId, callback) {
+    const element = document.getElementById(imageInputId);
+    var file = element.files[0];
+    var reader = new FileReader();
+    reader.onloadend = function () {
+        saveImageDB2(reader.result, imageId, callback)
+    }
+    reader.readAsDataURL(file);
+}
+
+
+function saveImageDB2(data, imageId, callback) {
+    const transaction = db.transaction(imageStoreName, 'readwrite');
+    const imageStore = transaction.objectStore(imageStoreName);
+
+    const imageObject = { id: imageId, data: data };
+    const addRequest = imageStore.add(imageObject);
+
+    addRequest.onsuccess = (event) => {
+        console.log("Image saved to IndexedDB successfully!");
+        callback();
+    };
+
+    addRequest.onerror = (event) => {
+        console.error("Error saving image to IndexedDB:", event.target.error);
+    };
+}
+
+function loadImageFromDB(imageId, targetImage) {
+    db
+        .transaction(imageStoreName, 'readonly')
+        .objectStore(imageStoreName)
+        .get(imageId).onsuccess = (event) => {
+            var imageObject = event.target.result;
+            console.log("Imageobject", imageObject);
+
+            var imageElement = document.getElementById(targetImage);
+            imageElement.src = imageObject.data;
+        };
+}
+
+function deleteImageById(imageId) {
+    const transaction = db.transaction(imageStoreName, 'readwrite');
+    const imageStore = transaction.objectStore(imageStoreName);
+
+    const deleteRequest = imageStore.delete(imageId);
+
+    deleteRequest.onsuccess = () => {
+        console.log(`Image with ID ${imageId} deleted from IndexedDB successfully!`);
+    };
+
+    deleteRequest.onerror = (event) => {
+        console.error("Error deleting image from IndexedDB:", event.target.error);
+    };
+}
+///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
 ////////////////////
 var tripsList = {};
 var currentTripId = null;
@@ -104,6 +196,7 @@ function initTripControls() {
     document.getElementById('ctrl-plus').addEventListener('click', openControls, false);
     document.getElementById('ctrl-cancel').addEventListener('click', closeControls, false);
     document.getElementById('ctrl-text').addEventListener('click', openEditText, false);
+    document.getElementById('ctrl-image').addEventListener('click', openEditImage, false);
 
 
 
@@ -159,7 +252,9 @@ function reloadTrip(data) {
 function reloadTrips() {
     console.log("reloadTrips")
     var tripsContainer = document.getElementById('trips-container');
-    tripsContainer.innerHTML = '';
+    while (tripsContainer.firstChild) {
+        tripsContainer.removeChild(tripsContainer.firstChild);
+    }
 
     Object.values(tripsList).forEach(reloadTrip);
 
@@ -196,7 +291,7 @@ function reloadSection(data) {
     img = document.createElement('img');
     img.classList.add('icon');
 
-    if ('text' == data.type){
+    if ('text' == data.type) {
         img.src = 'icons/font.png';
         text = document.createElement('div');
         text.classList.add('container');
@@ -208,13 +303,34 @@ function reloadSection(data) {
 
         section.appendChild(img);
         section.appendChild(text);
+    } else if ('image' == data.type) {
+        img.src = 'icons/photo.png';
+        image = document.createElement('div');
+        image.classList.add('container');
+        image.classList.add('gallery-container');
+
+        photo = document.createElement('img');
+        photo.id = 'photo-' + data.imageId;
+
+        image.appendChild(photo);
+
+
+        image.dataset.sectionId = data.id;
+        image.addEventListener('click', openEditImageEv, false);
+
+        section.appendChild(img);
+        section.appendChild(image);
+        loadImageFromDB(data.imageId, photo.id);
     }
     document.getElementById('sections-container').appendChild(section);
 }
 
 function reloadSections(sections) {
     var sectionsContainer = document.getElementById('sections-container');
-    sectionsContainer.innerHTML = '';
+
+    while (sectionsContainer.firstChild) {
+        sectionsContainer.removeChild(sectionsContainer.firstChild);
+    }
 
     Object.values(sections).forEach(reloadSection);
 
@@ -225,8 +341,14 @@ function openViewTrip(tripId) {
     closeControls();
     currentSectionId = null;
 
+    if (tripId){
+        currentTripId = tripId;
+    } else {
+        tripId = currentTripId;
+    }
+
     var trip = tripsList[tripId];
-    currentTripId = tripId;
+
 
     document.getElementById('detail-trip-name').innerHTML = trip.name;
     document.getElementById('detail-trip-date').innerHTML = formatDate(trip.date);
@@ -262,14 +384,17 @@ function openEditTrip() {
     document.getElementById('section-icon').src = 'icons/trotamundos.png';
 
     document.getElementById('section-text').classList.add('hidden');
+    document.getElementById('section-image').classList.add('hidden');
     document.getElementById('section-trip-data').classList.remove('hidden');
 }
 
 function saveSection() {
-    if ("trip" == currentSection){
+    if ("trip" == currentSection) {
         saveTrip();
-    } else if ("text" == currentSection){
+    } else if ("text" == currentSection) {
         saveText();
+    } else if ("image" == currentSection) {
+        saveImage();
     }
 }
 
@@ -302,7 +427,7 @@ function saveText() {
         if (currentSectionId != null) {
             section = trip.sections[currentSectionId];
         } else {
-            section = {id: uuidv4(), type: "text"};
+            section = { id: uuidv4(), type: "text" };
         }
 
         section.text = document.getElementById('trip-text').value;
@@ -314,6 +439,37 @@ function saveText() {
         openViewTrip(trip.id);
     } else {
         document.getElementById('section-text').reportValidity();
+    }
+}
+
+function saveImage() {
+    if (document.getElementById('section-image').checkValidity()) {
+        var trip = tripsList[currentTripId];
+        var section;
+        if (currentSectionId != null) {
+            section = trip.sections[currentSectionId];
+        } else {
+            section = { type: "image" };
+        }
+
+
+        var oldImageId = section.imageId;
+        var imageId = uuidv4();
+        section.imageId = imageId;
+
+        trip.sections[section.id] = section;
+        tripsList[trip.id] = trip;
+        save();
+
+        //Delete old image
+        if (oldImageId != null){
+            deleteImageById(oldImageId);
+        }
+        saveImageDB('trip-image', imageId, openViewTrip);
+
+
+    } else {
+        document.getElementById('section-image').reportValidity();
     }
 }
 
@@ -344,7 +500,71 @@ function openEditText() {
 
 
     document.getElementById('section-text').classList.remove('hidden');
+    document.getElementById('section-image').classList.add('hidden');
     document.getElementById('section-trip-data').classList.add('hidden');
+}
+
+
+
+function openEditImageEv(ev) {
+    currentSectionId = ev.currentTarget.dataset.sectionId;
+    openEditImage();
+}
+
+function openEditImage() {
+    currentSection = "image";
+    var trip = tripsList[currentTripId];
+
+    if (currentSectionId == null) {
+        document.getElementById('trip-image').value = '';
+        document.getElementById('trip-image-preview').src = 'icons/photo-placeholder.png';
+    } else {
+        section = trip.sections[currentSectionId]
+        loadImageFromDB(section.imageId, 'trip-image-preview');
+
+    }
+
+    document.getElementById('section-title').innerHTML = trip.name;
+    document.getElementById('section-icon').src = 'icons/photo.png';
+
+
+    document.getElementById('home-screen').classList.add('hidden');
+    document.getElementById('trip-screen').classList.add('hidden');
+    document.getElementById('section-screen').classList.remove('hidden');
+
+
+    document.getElementById('section-text').classList.add('hidden');
+    document.getElementById('section-image').classList.remove('hidden');
+    document.getElementById('section-trip-data').classList.add('hidden');
+}
+
+
+function previewImage(ev) {
+    handleImagePreview('trip-image', 'trip-image-preview');
+}
+
+function handleImagePreview(inputId, containerId) {
+    const fileInput = document.getElementById(inputId);
+    const previewContainer = document.getElementById(containerId);
+    console.log(inputId);
+    console.log(fileInput);
+    const file = fileInput.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            const imageBlob = event.target.result;
+            const imageUrl = URL.createObjectURL(new Blob([imageBlob], { type: 'image/jpeg' }));
+
+            previewContainer.src = imageUrl;
+
+        };
+
+        reader.readAsArrayBuffer(file);
+    } else {
+        alert("Please select an image first!");
+    }
 }
 
 
@@ -355,6 +575,10 @@ function initHomeControls() {
 function initSectionControls() {
     document.getElementById('section-save').addEventListener('click', saveSection, false);
     document.getElementById('section-cancel').addEventListener('click', goBack, false);
+
+    document.getElementById('trip-image').addEventListener('change', previewImage);
+
+
 }
 
 window.onload = function (e) {

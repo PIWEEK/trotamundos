@@ -146,6 +146,20 @@ body {
     position: relative;
 }
 
+#section-image {
+    text-align: center;
+    margin-top: 100px;
+}
+
+#trip-image {
+    display: none;
+}
+
+#trip-image-preview{
+    width: 100%;
+    cursor: pointer;
+}
+
 #trip-menu {
     width:300px;
     height: 256px;
@@ -246,4 +260,36 @@ textarea {
     width: 100%;
     height: 500px;
     font-size: 24px;
+}
+
+.image-type {
+    display: none;
+    align-items: center;
+    justify-content: space-around;
+    margin: 25px 0;
+    width: 100%;
+}
+
+.img-type-container{
+    width: 100px;
+    height: 100px;
+    position: relative;
+}
+
+.image-type img {
+    width: 100%;
+    height: 100%;
+}
+
+.img-type-container .img-type-overlay {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.img-type-container.selected .img-type-overlay {
+    display: none;
 }
