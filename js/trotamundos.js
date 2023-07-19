@@ -723,6 +723,7 @@ window.onload = function (e) {
 
 function initPreviewControls() {
     document.getElementById('preview-go-back').addEventListener('click', closePreview , false);
+    document.getElementById('preview-to-pdf').addEventListener('click', previewToPdf , false);
 }
 
 function closePreview(){
@@ -767,4 +768,31 @@ function reloadPreviewSections(sections) {
    sections.sort((a, b) => a.pos - b.pos);
 
    sections.forEach(reloadPreviewSection);
+}
+
+
+
+
+////////////// PDF ///////////////////////
+
+window.jsPDF = window.jspdf.jsPDF;
+
+function previewToPdf() {
+    const doc = new jsPDF();
+
+    // Source HTMLElement or a string containing HTML.
+    var elementHTML = document.getElementById('trotamundos-preview');
+
+    doc.html(elementHTML, {
+        callback: function(doc) {
+            // Save the PDF
+            doc.save('trotamundos.pdf');
+        },
+        margin: [10, 10, 10, 10],
+        autoPaging: 'text',
+        x: 0,
+        y: 0,
+        width: 190, //target width in the PDF document
+        windowWidth: 1000 //window width in CSS pixels
+    });
 }

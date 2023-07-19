@@ -4,6 +4,10 @@
 <head>
 	<title>Trotamundos</title>
 	<script src="libs/Sortable1-15.min.js"></script>
+	<script src="libs/html2canvas.min.js"></script>
+	<script src="libs/jspdf2-5-1.umd.min.js"></script>
+
+
 	<link rel="stylesheet" href="css/trotamundos.css">
 	<link rel="stylesheet" href="css/preview.css">
 	<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
@@ -49,10 +53,6 @@
 				<div id="preview-trip" class="menu-item">
 					<img src="icons/preview.png">
 					Previsualizar
-				</div>
-				<div id="pdf-trip" class="menu-item">
-					<img src="icons/pdf.png">
-					Exportar a PDF
 				</div>
 				<div id="delete-trip" class="menu-item">
 					<img src="icons/bin.png">
@@ -168,8 +168,9 @@
 		</div>
 		<div id="preview-sections-container">
 		</div>
-		<div id="preview-go-back">
-			<img src="icons/go-back.png" />
+		<div id="preview-controls">
+			<img id="preview-go-back" src="icons/go-back.png" />
+			<img id="preview-to-pdf" src="icons/pdf-black.png" />
 		</div>
 
 	</div>

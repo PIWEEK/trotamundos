@@ -46,7 +46,7 @@
 }
 
 .preview-image, .preview-text {
-    margin-bottom: 50px;
+    margin: 50px 0;
 }
 
 .preview-image img {
@@ -57,9 +57,18 @@
     font-size: 3rem;
 }
 
-#preview-go-back {
+#preview-controls {
     position: fixed;
     top: 50px;
-    left: 50px;
+    left: 5%;
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
 }
+
+#preview-controls img {
+    width: 96px;
+    height: 96px;
+}
+
 
