@@ -60,8 +60,6 @@ function loadImageFromDB(imageId, targetImage) {
         .objectStore(imageStoreName)
         .get(imageId).onsuccess = (event) => {
             var imageObject = event.target.result;
-            console.log("Imageobject", imageObject);
-
             var imageElement = document.getElementById(targetImage);
             imageElement.src = imageObject.data;
             if (imageElement.naturalWidth > imageElement.naturalHeight) {
@@ -183,7 +181,6 @@ function initSectionsSortable(sectionsContainer) {
 }
 
 function updateSectionOrder() {
-    console.log('updating...')
     var sections = document.getElementsByClassName('section-item');
     var trip = tripsList[currentTripId];
     var sectionId;
@@ -299,7 +296,13 @@ function previewTrip() {
     var trip = tripsList[currentTripId];
     reloadPreviewSections(trip.sections);
     document.getElementById('preview-post-title').innerText = trip.name
-    document.getElementById('preview-post-date').innerText = formatDate(trip.date)
+    var date = formatDate(trip.date)
+    if ((trip.date2 != null) && (trip.date2 != "")){
+        console.log("date2", trip.date2, trip.date2 == null, trip.date2 == "");
+        date += " - " + formatDate(trip.date2);
+    }
+    document.getElementById('preview-post-date').innerText = date
+
     document.getElementById('trotamundos-editor').classList.add('hidden');
     document.getElementById('trotamundos-preview').classList.remove('hidden');
     document.body.style.backgroundColor = "white";
@@ -335,7 +338,7 @@ function reloadTrip(data) {
     tripDate = document.createElement('div');
     tripDate.classList.add('date-title');
     var date = formatDate(data.date);
-    if (data.date2 != null){
+    if ((data.date2 != null) && (data.date2 != "")){
         date += " - " + formatDate(data.date2);
     }
     tripDate.innerHTML = date;
@@ -349,7 +352,6 @@ function reloadTrip(data) {
 }
 
 function reloadTrips() {
-    console.log("reloadTrips")
     var tripsContainer = document.getElementById('trips-container');
     while (tripsContainer.firstChild) {
         tripsContainer.removeChild(tripsContainer.firstChild);
@@ -436,7 +438,6 @@ function reloadSection(data) {
         section.appendChild(img);
         section.appendChild(text);
     }
-    console.log(data.type);
     document.getElementById('sections-container').appendChild(section);
 }
 
@@ -501,7 +502,6 @@ function openEditTrip() {
 }
 
 function saveSection() {
-    console.log("saveSection");
     switch (currentSection) {
         case 'trip':
             saveTrip();
@@ -644,7 +644,6 @@ function openEditTextEv(ev) {
 
 function findTitle(){
     var title = tripsList[currentTripId].name;
-    console.log(sortedSections);
     for (var i=0; i<sortedSections.length;i++){
         if ("subtitle" == sortedSections[i].type){
             title = "... / " + sortedSections[i].subtitle;
@@ -729,8 +728,6 @@ function previewImage(ev) {
 function handleImagePreview(inputId, containerId) {
     const fileInput = document.getElementById(inputId);
     const previewContainer = document.getElementById(containerId);
-    console.log(inputId);
-    console.log(fileInput);
     const file = fileInput.files[0];
 
     if (file) {
@@ -919,7 +916,11 @@ window.jsPDF = window.jspdf.jsPDF;
 
 function previewToPdf() {
     showLoader();
-    const doc = new jsPDF();
+    const doc = new jsPDF({
+        orientation: 'portrait', // Set the orientation to portrait
+        unit: 'px', // Use pixels as the unit for positioning
+        format: 'a4', // Set the PDF format to A4
+    });
 
     // Source HTMLElement or a string containing HTML.
     var elementHTML = document.getElementById('trotamundos-preview');
@@ -934,7 +935,7 @@ function previewToPdf() {
         autoPaging: 'text',
         x: 0,
         y: 0,
-        width: 190, //target width in the PDF document
+        width: 400, //target width in the PDF document
         windowWidth: 1000 //window width in CSS pixels
     });
 }
