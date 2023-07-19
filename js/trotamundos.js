@@ -218,6 +218,13 @@ function openSectionMenu() {
 
 function confirmDeleteTrip() {
     if (confirm("¿Seguro que quieres borrar este viaje?") == true) {
+        var trip = tripsList[currentTripId];
+        var sections = Object.values(trip.sections);
+        for (var i =0; i<sections.length;i++){
+            if ("image" == sections[i].type){
+                deleteImageById(sections[i].imageId);
+            }
+        }
         delete tripsList[currentTripId];
         save();
         goHome();
@@ -228,6 +235,11 @@ function confirmDeleteTrip() {
 function confirmDeleteSection() {
     if (confirm("¿Seguro que quieres borrar esta sección?") == true) {
         var trip = tripsList[currentTripId];
+        var section = trip.sections[currentSectionId];
+        if ("image" == section.type){
+            deleteImageById(section.imageId);
+        }
+
         delete trip.sections[currentSectionId];
         reloadSections(trip.sections);
         updateSectionOrder();
