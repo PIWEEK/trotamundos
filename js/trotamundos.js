@@ -233,7 +233,7 @@ function confirmDeleteTrip() {
 }
 
 function confirmDeleteSection() {
-    if (confirm("¿Seguro que quieres borrar esta sección?") == true) {
+    if (confirm("\u00BFSeguro que quieres borrar esta secci\u00F3n?") == true) {
         var trip = tripsList[currentTripId];
         var section = trip.sections[currentSectionId];
         if ("image" == section.type){
