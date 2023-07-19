@@ -135,7 +135,9 @@ body {
 }
 
 .text-container.subtitle {
-    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 40px;
 }
 
 .gallery-container {
@@ -288,7 +290,7 @@ body {
     font-size: 56px;
 }
 
-.subtitle {
+input.subtitle {
     text-transform: uppercase;
     font-weight: bold;
     height: 100px;

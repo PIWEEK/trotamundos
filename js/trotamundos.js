@@ -427,6 +427,7 @@ function reloadSection(data) {
         text = document.createElement('div');
         text.classList.add('container');
         text.classList.add('text-container');
+        text.classList.add('subtitle');
         text.innerText = data.subtitle;
 
         text.dataset.sectionId = data.id;
