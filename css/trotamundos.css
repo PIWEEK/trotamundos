@@ -126,6 +126,10 @@ body {
     height: auto;
 }
 
+.text-container.subtitle {
+    text-align: center;
+}
+
 .gallery-container {
     display: inline-flex;
     gap: 12px;

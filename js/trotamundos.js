@@ -155,7 +155,7 @@ function openControls() {
     document.getElementById('ctrl-text').classList.remove('hidden');
     document.getElementById('ctrl-image').classList.remove('hidden');
     document.getElementById('ctrl-cancel').classList.remove('hidden');
-    document.getElementById('ctrl-title').classList.remove('hidden');
+    document.getElementById('ctrl-subtitle').classList.remove('hidden');
     document.getElementById('ctrl-gpx').classList.remove('hidden');
 
     document.getElementById('controls').classList.add('open');
@@ -167,7 +167,7 @@ function closeControls() {
     document.getElementById('ctrl-text').classList.add('hidden');
     document.getElementById('ctrl-image').classList.add('hidden');
     document.getElementById('ctrl-cancel').classList.add('hidden');
-    document.getElementById('ctrl-title').classList.add('hidden');
+    document.getElementById('ctrl-subtitle').classList.add('hidden');
     document.getElementById('ctrl-gpx').classList.add('hidden');
 
     document.getElementById('controls').classList.remove('open');
@@ -197,14 +197,11 @@ function initTripControls() {
     document.getElementById('ctrl-cancel').addEventListener('click', closeControls, false);
     document.getElementById('ctrl-text').addEventListener('click', openEditText, false);
     document.getElementById('ctrl-image').addEventListener('click', openEditImage, false);
-
-
-
+    document.getElementById('ctrl-subtitle').addEventListener('click', openEditSubtitle, false);
 
     document.getElementById('go-home').addEventListener('click', goHome, false);
     document.getElementById('trip-menu-icon').addEventListener('click', openTripMenu, false);
     document.getElementById('overlay').addEventListener('click', closeTripMenu, false);
-
 
     document.getElementById('delete-trip').addEventListener('click', confirmDeleteTrip, false);
 
@@ -321,7 +318,20 @@ function reloadSection(data) {
         section.appendChild(img);
         section.appendChild(image);
         loadImageFromDB(data.imageId, photo.id);
+    } else if ('subtitle' == data.type) {
+        img.src = 'icons/title.png';
+        text = document.createElement('div');
+        text.classList.add('container');
+        text.classList.add('text-container');
+        text.innerText = data.subtitle;
+
+        text.dataset.sectionId = data.id;
+        text.addEventListener('click', openEditSubtitleEv, false);
+
+        section.appendChild(img);
+        section.appendChild(text);
     }
+    console.log(data.type);
     document.getElementById('sections-container').appendChild(section);
 }
 
@@ -341,7 +351,7 @@ function openViewTrip(tripId) {
     closeControls();
     currentSectionId = null;
 
-    if (tripId){
+    if (tripId) {
         currentTripId = tripId;
     } else {
         tripId = currentTripId;
@@ -378,23 +388,24 @@ function openEditTrip() {
         document.getElementById('trip-theme').value = trip.theme;
     }
 
-    document.getElementById('home-screen').classList.add('hidden');
-    document.getElementById('trip-screen').classList.add('hidden');
-    document.getElementById('section-screen').classList.remove('hidden');
     document.getElementById('section-icon').src = 'icons/trotamundos.png';
-
-    document.getElementById('section-text').classList.add('hidden');
-    document.getElementById('section-image').classList.add('hidden');
-    document.getElementById('section-trip-data').classList.remove('hidden');
+    openSection('section-trip-data');
 }
 
 function saveSection() {
-    if ("trip" == currentSection) {
-        saveTrip();
-    } else if ("text" == currentSection) {
-        saveText();
-    } else if ("image" == currentSection) {
-        saveImage();
+    switch (currentSection) {
+        case 'trip':
+            saveTrip();
+            break;
+        case 'text':
+            saveText();
+            break;
+        case 'image':
+            saveImage();
+            break;
+        case 'subtitle':
+            saveSubtitle();
+            break;
     }
 }
 
@@ -449,7 +460,7 @@ function saveImage() {
         if (currentSectionId != null) {
             section = trip.sections[currentSectionId];
         } else {
-            section = { type: "image" };
+            section = { id: uuidv4(), type: "image" };
         }
 
 
@@ -462,7 +473,7 @@ function saveImage() {
         save();
 
         //Delete old image
-        if (oldImageId != null){
+        if (oldImageId != null) {
             deleteImageById(oldImageId);
         }
         saveImageDB('trip-image', imageId, openViewTrip);
@@ -473,6 +484,44 @@ function saveImage() {
     }
 }
 
+function saveSubtitle() {
+    if (document.getElementById('section-subtitle').checkValidity()) {
+        var trip = tripsList[currentTripId];
+        var section;
+        if (currentSectionId != null) {
+            section = trip.sections[currentSectionId];
+        } else {
+            section = { id: uuidv4(), type: "subtitle" };
+        }
+
+        section.subtitle = document.getElementById('trip-subtitle').value;
+
+        trip.sections[section.id] = section;
+        tripsList[trip.id] = trip;
+        save();
+
+        openViewTrip(trip.id);
+    } else {
+        document.getElementById('section-subtitle').reportValidity();
+    }
+}
+
+
+
+
+function openSection(sectionId) {
+    document.getElementById('home-screen').classList.add('hidden');
+    document.getElementById('trip-screen').classList.add('hidden');
+    document.getElementById('section-screen').classList.remove('hidden');
+
+
+    document.getElementById('section-text').classList.add('hidden');
+    document.getElementById('section-image').classList.add('hidden');
+    document.getElementById('section-subtitle').classList.add('hidden');
+    document.getElementById('section-trip-data').classList.add('hidden');
+
+    document.getElementById(sectionId).classList.remove('hidden');
+}
 
 function openEditTextEv(ev) {
     currentSectionId = ev.currentTarget.dataset.sectionId;
@@ -492,16 +541,7 @@ function openEditText() {
 
     document.getElementById('section-title').innerHTML = trip.name;
     document.getElementById('section-icon').src = 'icons/font.png';
-
-
-    document.getElementById('home-screen').classList.add('hidden');
-    document.getElementById('trip-screen').classList.add('hidden');
-    document.getElementById('section-screen').classList.remove('hidden');
-
-
-    document.getElementById('section-text').classList.remove('hidden');
-    document.getElementById('section-image').classList.add('hidden');
-    document.getElementById('section-trip-data').classList.add('hidden');
+    openSection('section-text');
 }
 
 
@@ -527,15 +567,27 @@ function openEditImage() {
     document.getElementById('section-title').innerHTML = trip.name;
     document.getElementById('section-icon').src = 'icons/photo.png';
 
-
-    document.getElementById('home-screen').classList.add('hidden');
-    document.getElementById('trip-screen').classList.add('hidden');
-    document.getElementById('section-screen').classList.remove('hidden');
+    openSection('section-image');
+}
 
 
-    document.getElementById('section-text').classList.add('hidden');
-    document.getElementById('section-image').classList.remove('hidden');
-    document.getElementById('section-trip-data').classList.add('hidden');
+function openEditSubtitleEv(ev) {
+    currentSectionId = ev.currentTarget.dataset.sectionId;
+    openEditSubtitle();
+}
+
+function openEditSubtitle() {
+    currentSection = "subtitle";
+    var trip = tripsList[currentTripId];
+    if (currentSectionId == null) {
+        document.getElementById('trip-subtitle').value = '';
+    } else {
+        document.getElementById('trip-subtitle').value = trip.sections[currentSectionId].subtitle;
+    }
+
+    document.getElementById('section-title').innerHTML = trip.name;
+    document.getElementById('section-icon').src = 'icons/title.png';
+    openSection('section-subtitle');
 }
 
 
