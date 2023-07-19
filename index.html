@@ -34,6 +34,10 @@
 					<img src="icons/publish.png">
 					Publicar
 				</div>
+				<div id="home-cache" class="menu-item">
+					<img src="icons/bin.png">
+					Borrar cache
+				</div>
 			</div>
 		</div>
 		<div id="trip-screen" class="trip hidden">
@@ -52,7 +56,6 @@
 				<img id="go-home" class="icon-title" src="icons/trotamundos.png">
 				<div id="trip-title" class="container title-container">
 					<div id="detail-trip-name" class="text-title"></div>
-					<div id="detail-trip-date" class="date-title"></div>
 				</div>
 				<img id="trip-menu-icon" class="icon-title" src="icons/menu.png">
 			</div>
@@ -83,24 +86,31 @@
 					<div id="section-title" class="text-title"></div>
 				</div>
 				<img id="section-menu-icon" class="icon-title hidden" src="icons/menu.png">
+				<img id="section-save-icon" class="icon-title hidden" src="icons/save.png">
 			</div>
 			<form id="section-trip-data" class="hidden">
 				<div class="form-line">
 					<label for="trip-name">Nombre del viaje: </label>
 				</div>
 				<div class="form-line">
-					<input type="text" id="trip-name" name="trip-name" required />
+					<input class="subtitle" type="text" id="trip-name" name="trip-name" required />
 				</div>
 				<div class="form-line">
-					<label for="trip-date">Fecha: </label>
+					<label for="trip-date">Fecha de inicio: </label>
 				</div>
 				<div class="form-line">
 					<input type="date" id="trip-date" name="trip-date" required />
 				</div>
 				<div class="form-line">
-					<label for="trip-theme">Tema: </label>
+					<label for="trip-date">Fecha de fin (opcional): </label>
 				</div>
 				<div class="form-line">
+					<input type="date" id="trip-date2" name="trip-date2" />
+				</div>
+				<div class="form-line hidden">
+					<label for="trip-theme">Tema: </label>
+				</div>
+				<div class="form-line hidden">
 					<select id="trip-theme" name="trip-theme">
 						<option value="green">Verde bosque</option>
 						<option value="blue">Azul monta&ntilde;a</option>
@@ -156,7 +166,7 @@
 					<label for="trip-subtitle">T&iacute;tulo: </label>
 				</div>
 				<div class="form-line">
-					<input id="trip-subtitle" name="trip-subtitle" required></input>
+					<input class="subtitle" id="trip-subtitle" name="trip-subtitle" required></input>
 				</div>
 			</form>
 			<div id="section-menu" class="menu hidden">
@@ -172,8 +182,8 @@
 			TROTAMUNDOS
 		</div>
 		<div class="preview-post-title-container">
-			<div id="preview-post-title">Viaje a las lagunas de somiedo</div>
-			<div id="preview-post-date" class="date">01.01.2020</div>
+			<div id="preview-post-title"></div>
+			<div id="preview-post-date" class="date"></div>
 		</div>
 		<div id="preview-sections-container">
 		</div>
@@ -183,7 +193,10 @@
 		</div>
 
 	</div>
-	<div id="overlay" class="hidden" />
+	<div id="overlay" class="hidden"></div>
+	<div id="loader" class="hidden">
+		<img src="icons/loading.gif" />
+	</div>
 	<script src="js/trotamundos.js"></script>
 </body>
 

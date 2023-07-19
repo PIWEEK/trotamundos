@@ -3,7 +3,7 @@
     text-align: center;
     height: 100%;
     background-color: white;
-    font-family: Arial, sans-serif;
+    font-family: Tahoma,Verdana,Segoe,sans-serif;
 }
 
 .preview-blog-title {
@@ -20,28 +20,27 @@
 }
 
 .preview-post-title-container {
-    font-size: 6.5rem;
-    /*background-image: url("/images/title-bg.jpg"); */
+    font-size: 90px;
     display: flex;
     flex-direction: column;
     gap: 15px;
     justify-content: center;
     align-items: center;
-    font-family: Georgia, serif;
-    font-weight: 400;
+    text-transform: uppercase;
+    font-weight: bold;
     margin: 20px 0;
     padding: 0 60px;
 }
 
 .preview-post-title-container .date {
     color: grey;
-    font-size: 3rem;
+    font-size: 36px;
 }
 
 #preview-sections-container{
     text-align: justify;
     margin: 0 25px;
-    font-size: 20px;
+    font-size: 42px;
     font-family: Helvetica, Geneva, sans-serif;
 }
 
@@ -49,12 +48,22 @@
     margin: 50px 0;
 }
 
+.preview-image {
+    text-align: center;
+}
+
 .preview-image img {
     width: 100%;
 }
 
+.preview-image img.portrait {
+    width: 50%;
+}
+
 .preview-subtitle h2 {
-    font-size: 3rem;
+    font-size: 60px;
+    text-transform: uppercase;
+    font-size: bold;
 }
 
 #preview-controls {

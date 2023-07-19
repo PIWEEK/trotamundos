@@ -43,10 +43,13 @@ function saveImageDB2(data, imageId, callback) {
 
     addRequest.onsuccess = (event) => {
         console.log("Image saved to IndexedDB successfully!");
+        hideLoader();
         callback();
     };
 
     addRequest.onerror = (event) => {
+        hideLoader();
+        alert("Error guardando la imagen");
         console.error("Error saving image to IndexedDB:", event.target.error);
     };
 }
@@ -61,6 +64,13 @@ function loadImageFromDB(imageId, targetImage) {
 
             var imageElement = document.getElementById(targetImage);
             imageElement.src = imageObject.data;
+            if (imageElement.naturalWidth > imageElement.naturalHeight) {
+                imageElement.classList.add("landscape");
+                imageElement.classList.remove("portrait");
+            } else {
+                imageElement.classList.remove("landscape");
+                imageElement.classList.add("portrait");
+            }
         };
 }
 
@@ -97,6 +107,7 @@ var currentSectionId = null;
 var currentSection = null;
 
 var sectionsSortable = null;
+var sortedSections = [];
 
 if (localStorage.tripsList) {
     tripsList = JSON.parse(localStorage.tripsList);
@@ -108,9 +119,9 @@ function save() {
     localStorage.tripsList = JSON.stringify(tripsList);
 }
 
-function getSection(trip, sectionId){
-    for (var i=0; i<trip.sections.length;i++){
-        if (sectionId == trip.sections[i].id){
+function getSection(trip, sectionId) {
+    for (var i = 0; i < trip.sections.length; i++) {
+        if (sectionId == trip.sections[i].id) {
             return trip.sections[i];
         }
     }
@@ -139,6 +150,14 @@ function formatDate(strDate) {
     return `${day}/${month}/${year}`;
 }
 
+function showLoader(){
+    document.getElementById("loader").classList.remove("hidden");
+}
+
+function hideLoader(){
+    document.getElementById("loader").classList.add("hidden");
+}
+
 function initTripsSortable(tripsContainer) {
     Sortable.create(tripsContainer, {
         animation: 150,
@@ -163,12 +182,12 @@ function initSectionsSortable(sectionsContainer) {
     });
 }
 
-function updateSectionOrder(){
+function updateSectionOrder() {
     console.log('updating...')
     var sections = document.getElementsByClassName('section-item');
     var trip = tripsList[currentTripId];
     var sectionId;
-    for (var i=0; i<sections.length; i++){
+    for (var i = 0; i < sections.length; i++) {
         sectionId = sections[i].dataset.sectionId;
         trip.sections[sectionId].pos = i;
     }
@@ -228,8 +247,8 @@ function confirmDeleteTrip() {
     if (confirm("¿Seguro que quieres borrar este viaje?") == true) {
         var trip = tripsList[currentTripId];
         var sections = Object.values(trip.sections);
-        for (var i =0; i<sections.length;i++){
-            if ("image" == sections[i].type){
+        for (var i = 0; i < sections.length; i++) {
+            if ("image" == sections[i].type) {
                 deleteImageById(sections[i].imageId);
             }
         }
@@ -244,7 +263,7 @@ function confirmDeleteSection() {
     if (confirm("\u00BFSeguro que quieres borrar esta secci\u00F3n?") == true) {
         var trip = tripsList[currentTripId];
         var section = trip.sections[currentSectionId];
-        if ("image" == section.type){
+        if ("image" == section.type) {
             deleteImageById(section.imageId);
         }
 
@@ -275,7 +294,7 @@ function initTripControls() {
 
 }
 
-function previewTrip(){
+function previewTrip() {
     closeMenu();
     var trip = tripsList[currentTripId];
     reloadPreviewSections(trip.sections);
@@ -315,7 +334,12 @@ function reloadTrip(data) {
 
     tripDate = document.createElement('div');
     tripDate.classList.add('date-title');
-    tripDate.innerHTML = formatDate(data.date);
+    var date = formatDate(data.date);
+    if (data.date2 != null){
+        date += " - " + formatDate(data.date2);
+    }
+    tripDate.innerHTML = date;
+
 
     title.appendChild(tripName);
     title.appendChild(tripDate);
@@ -422,10 +446,10 @@ function reloadSections(sections) {
         sectionsContainer.removeChild(sectionsContainer.firstChild);
     }
 
-   var sections = Object.values(sections)
-   sections.sort((a, b) => a.pos - b.pos);
+    sortedSections = Object.values(sections)
+    sortedSections.sort((a, b) => a.pos - b.pos);
 
-   sections.forEach(reloadSection);
+    sortedSections.forEach(reloadSection);
 
     initSectionsSortable(sectionsContainer);
 }
@@ -444,7 +468,6 @@ function openViewTrip(tripId) {
 
 
     document.getElementById('detail-trip-name').innerHTML = trip.name;
-    document.getElementById('detail-trip-date').innerHTML = formatDate(trip.date);
     reloadSections(trip.sections);
 
     document.getElementById('home-screen').classList.add('hidden');
@@ -467,6 +490,7 @@ function openEditTrip() {
         document.getElementById('section-title').innerHTML = trip.name;
         document.getElementById('trip-name').value = trip.name;
         document.getElementById('trip-date').value = trip.date;
+        document.getElementById('trip-date2').value = trip.date2;
         document.getElementById('trip-id').value = trip.id;
         document.getElementById('trip-theme').value = trip.theme;
     }
@@ -476,6 +500,7 @@ function openEditTrip() {
 }
 
 function saveSection() {
+    console.log("saveSection");
     switch (currentSection) {
         case 'trip':
             saveTrip();
@@ -504,6 +529,7 @@ function saveTrip() {
         trip.id = document.getElementById('trip-id').value;
         trip.name = document.getElementById('trip-name').value;
         trip.date = document.getElementById('trip-date').value;
+        trip.date2 = document.getElementById('trip-date2').value;
         trip.theme = document.getElementById('trip-theme').value;
 
         tripsList[trip.id] = trip;
@@ -521,7 +547,7 @@ function saveText() {
         if (currentSectionId != null) {
             section = trip.sections[currentSectionId];
         } else {
-            section = { id: uuidv4(), type: "text", pos: Object.keys(trip.sections).length};
+            section = { id: uuidv4(), type: "text", pos: Object.keys(trip.sections).length };
         }
 
         section.text = document.getElementById('trip-text').value;
@@ -541,6 +567,7 @@ function saveText() {
 
 function saveImage() {
     if (document.getElementById('section-image').checkValidity()) {
+        showLoader();
         var trip = tripsList[currentTripId];
         var section;
         if (currentSectionId != null) {
@@ -614,11 +641,23 @@ function openEditTextEv(ev) {
     openEditText();
 }
 
+function findTitle(){
+    var title = tripsList[currentTripId].name;
+    console.log(sortedSections);
+    for (var i=0; i<sortedSections.length;i++){
+        if ("subtitle" == sortedSections[i].type){
+            title = "... / " + sortedSections[i].subtitle;
+        }
+        if (sortedSections[i].id == currentSectionId){
+            break;
+        }
+    }
+    return title;
+}
+
 function openEditText() {
     currentSection = "text";
     var trip = tripsList[currentTripId];
-    console.log(currentSectionId);
-    console.log(trip);
     if (currentSectionId == null) {
         document.getElementById('trip-text').value = '';
         document.getElementById('section-menu-icon').classList.add('hidden');
@@ -627,7 +666,7 @@ function openEditText() {
         document.getElementById('section-menu-icon').classList.remove('hidden');
     }
 
-    document.getElementById('section-title').innerHTML = trip.name;
+    document.getElementById('section-title').innerHTML = findTitle();
     document.getElementById('section-icon').src = 'icons/font.png';
     openSection('section-text');
 }
@@ -653,7 +692,7 @@ function openEditImage() {
         document.getElementById('section-menu-icon').classList.remove('hidden');
     }
 
-    document.getElementById('section-title').innerHTML = trip.name;
+    document.getElementById('section-title').innerHTML = findTitle();
     document.getElementById('section-icon').src = 'icons/photo.png';
 
     openSection('section-image');
@@ -710,7 +749,7 @@ function handleImagePreview(inputId, containerId) {
     }
 }
 
-function publish(){
+function publish() {
     const formData = new FormData();
     formData.append("data", "hello world");
 
@@ -718,24 +757,60 @@ function publish(){
         method: "POST",
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-    })
-    .catch(error => {
-        console.error("Error:", error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
 }
 
+
+async function clearCache() {
+    try {
+      // Open the cache
+      const cache = await caches.open("trotamundos-v1");
+
+      // Get all the cache keys (URLs)
+      const cacheKeys = await cache.keys();
+
+      // Delete each entry in the cache
+      const deletePromises = cacheKeys.map(key => cache.delete(key));
+
+      // Wait for all delete operations to complete
+      await Promise.all(deletePromises);
+
+      console.log('Cache cleared successfully.');
+      window.location.reload(true);
+    } catch (error) {
+      console.error('Error clearing cache:', error);
+    }
+  }
+
+function sectionInputFocus(){
+    document.getElementById('section-menu-icon').classList.add('hidden');
+    document.getElementById('section-save-icon').classList.remove('hidden');
+}
+function sectionInputBlur(){
+    setTimeout(() => {
+        if (currentSectionId != null) {
+            document.getElementById('section-menu-icon').classList.remove('hidden');
+        }
+        document.getElementById('section-save-icon').classList.add('hidden');
+      }, 50);
+}
 
 function initHomeControls() {
     document.getElementById('add-trip').addEventListener('click', openEditTrip, false);
     document.getElementById('home-menu-icon').addEventListener('click', openHomeMenu, false);
     document.getElementById('home-publish').addEventListener('click', publish, false);
+    document.getElementById('home-cache').addEventListener('click', clearCache, false);
 }
 
 function initSectionControls() {
     document.getElementById('section-save').addEventListener('click', saveSection, false);
+    document.getElementById('section-save-icon').addEventListener('click', saveSection, false);
     document.getElementById('section-cancel').addEventListener('click', goBack, false);
 
     document.getElementById('trip-image').addEventListener('change', previewImage);
@@ -743,7 +818,31 @@ function initSectionControls() {
     document.getElementById('delete-section').addEventListener('click', confirmDeleteSection, false);
 
 
+    document.getElementById('trip-name').addEventListener('focus', sectionInputFocus);
+    document.getElementById('trip-name').addEventListener('blur', sectionInputBlur);
+
+    document.getElementById('trip-subtitle').addEventListener('focus', sectionInputFocus);
+    document.getElementById('trip-subtitle').addEventListener('blur', sectionInputBlur);
+
+    document.getElementById('trip-text').addEventListener('focus', sectionInputFocus);
+    document.getElementById('trip-text').addEventListener('blur', sectionInputBlur);
+
+
 }
+
+
+function preventEnter() {
+    const inputs = document.querySelectorAll("input");
+    inputs.forEach(function (input) {
+        input.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+            }
+        });
+    });
+}
+
+
 
 window.onload = function (e) {
     initServiceWorker();
@@ -752,6 +851,7 @@ window.onload = function (e) {
     initTripControls();
     initSectionControls();
     initPreviewControls();
+    preventEnter();
 
     goHome();
 }
@@ -761,11 +861,11 @@ window.onload = function (e) {
 //////////////// PREVIEW /////////////////////
 
 function initPreviewControls() {
-    document.getElementById('preview-go-back').addEventListener('click', closePreview , false);
-    document.getElementById('preview-to-pdf').addEventListener('click', previewToPdf , false);
+    document.getElementById('preview-go-back').addEventListener('click', closePreview, false);
+    document.getElementById('preview-to-pdf').addEventListener('click', previewToPdf, false);
 }
 
-function closePreview(){
+function closePreview() {
     document.body.style.backgroundColor = "black";
     document.getElementById('trotamundos-preview').classList.add('hidden');
     document.getElementById('trotamundos-editor').classList.remove('hidden');
@@ -803,10 +903,10 @@ function reloadPreviewSections(sections) {
         sectionsContainer.removeChild(sectionsContainer.firstChild);
     }
 
-   var sections = Object.values(sections)
-   sections.sort((a, b) => a.pos - b.pos);
+    var sections = Object.values(sections)
+    sections.sort((a, b) => a.pos - b.pos);
 
-   sections.forEach(reloadPreviewSection);
+    sections.forEach(reloadPreviewSection);
 }
 
 
@@ -817,15 +917,17 @@ function reloadPreviewSections(sections) {
 window.jsPDF = window.jspdf.jsPDF;
 
 function previewToPdf() {
+    showLoader();
     const doc = new jsPDF();
 
     // Source HTMLElement or a string containing HTML.
     var elementHTML = document.getElementById('trotamundos-preview');
 
     doc.html(elementHTML, {
-        callback: function(doc) {
+        callback: function (doc) {
             // Save the PDF
-            doc.save('trotamundos.pdf');
+            doc.save(tripsList[currentTripId].name + '.pdf');
+            hideLoader();
         },
         margin: [10, 10, 10, 10],
         autoPaging: 'text',
