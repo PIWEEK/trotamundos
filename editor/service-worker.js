@@ -62,7 +62,7 @@ self.addEventListener("fetch", (e) => {
           return r;
         }
         const response = await fetch(e.request);
-        if ((url.toUpperCase().endsWith("JPG")) || (url.toUpperCase().endsWith("PNG"))) {
+        if ((url.toUpperCase().endsWith("JPG")) || (url.toUpperCase().endsWith("PNG")) || (url.includes("data/images"))) {
           const cache = await caches.open(cacheName);
           console.log(`[Service Worker] Caching new resource: ${url}`);
           cache.put(e.request, response.clone());
