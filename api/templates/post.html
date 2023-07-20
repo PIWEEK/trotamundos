@@ -5,7 +5,8 @@
     <title>TROTAMUNDOS</title>
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/trotamundos.css">
-    <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 </head>
 
 <body>
@@ -46,11 +47,28 @@
     </div>
     <script>
         window.onload = function (e) {
+
+            // Set portrait or landscape to images
             const images = document.getElementsByTagName('img');
             for (const image of images) {
                 const orientation = image.naturalWidth > image.naturalHeight ? 'landscape' : 'portrait';
                 image.classList.add(orientation);
                 console.log(image.id, image.naturalWidth, image.naturalHeight, orientation);
+            }
+
+            // Make the links clickables
+            // Get the element containing the long text
+
+            const texts = document.getElementsByClassName('tm-text');
+            for (const text of texts) {
+                // Regular expression to match web addresses in the text
+                const webAddressRegex = /(https?:\/\/[^\s]+)/g;
+
+                // Replace web addresses with clickable links
+                text.innerHTML = text.innerHTML.replace(
+                    webAddressRegex,
+                    '<a href="$1" target="_blank">$1</a>'
+                );
             }
         }
     </script>

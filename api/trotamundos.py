@@ -11,14 +11,12 @@ app = Flask(__name__)
 # Set the maximum content length to 10 MB (for example)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10 MB in bytes
 
-
-
 def generate_blog_index(trips):
     dynamic_data = {
         'trips': trips
     }
     html = render_template('index.html', **dynamic_data)
-    with open('blog/index.html', 'wt') as f:
+    with open('blog/index.html', 'w', encoding='iso-8859-15') as f:
         f.write(html)
 
 def generate_post(trip):
@@ -26,10 +24,10 @@ def generate_post(trip):
         'name': trip['name'],
         'date': trip['date'],
         'date2': trip['date2'],
-        'sections': trip['sections'].values(),
+        'sections': sorted(trip['sections'].values(), key=lambda x: x['pos'])
     }
     html = render_template('post.html', **dynamic_data)
-    with open('blog/post/' + trip['id'] +'.html', 'wt') as f:
+    with open('blog/post/' + trip['id'] +'.html', 'w', encoding='iso-8859-15') as f:
         f.write(html)
 
 def generate_blog(data):
