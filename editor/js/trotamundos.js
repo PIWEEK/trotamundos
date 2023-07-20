@@ -388,6 +388,7 @@ function goHome() {
     document.getElementById('section-screen').classList.add('hidden');
     reloadTrips();
     document.getElementById('home-screen').classList.remove('hidden');
+    hideLoader();
 }
 
 
@@ -857,7 +858,6 @@ async function clearCache() {
         await Promise.all(deletePromises);
 
         console.log('Cache cleared successfully.');
-        hideLoader();
         window.location.reload(true);
     } catch (error) {
         console.error('Error clearing cache:', error);
