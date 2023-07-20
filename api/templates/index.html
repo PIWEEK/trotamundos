@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TROTAMUNDOS</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/trotamundos.css">
+	<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+</head>
+<body>
+    <div id="tm-container" class="">
+		<div class="tm-blog-title">
+			TROTAMUNDOS
+		</div>
+        <div id="posts-list">
+            {% for trip in trips %}
+            <div class="tm-index-entry" onclick="window.location='post/{{ trip.id }}.html'">
+                <div class="tm-post-title-container">
+                    <div id="trotamundos-post-title">{{ trip.name }}</div>
+                    <div id="trotamundos-post-date" class="date">
+                        {{ trip.date }}
+                        {% if trip.date2 %}
+                        &nbsp;-&nbsp;{{ trip.date2 }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+	</div>
+</body>
+</html>

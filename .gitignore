@@ -4,3 +4,7 @@ api/data/*
 api/data/**
 api/__pycache__/*
 api/__pycache__/**
+api/blog/index.html
+api/blog/post/*
+api/blog/post/**
+

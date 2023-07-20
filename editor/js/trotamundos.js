@@ -81,12 +81,10 @@ function loadImageFromDB(imageId, targetImage) {
                 imageElement.classList.add("portrait");
             }
         } else {
-            console.log(">>>>>>>>>>>>>>undefined", targetImage, imageElement);
             imageElement.src = "/data/images/" + imageId;
         }
     }
     loader.onerror = (event) => {
-        console.log(">>>>>>>>>>>>>>onerror")
         imageElement.src = "/data/images/" + imageId;
     };
 }
@@ -317,13 +315,13 @@ function previewTrip() {
     closeMenu();
     var trip = tripsList[currentTripId];
     reloadPreviewSections(trip.sections);
-    document.getElementById('preview-post-title').innerText = trip.name
+    document.getElementById('tm-post-title').innerText = trip.name
     var date = formatDate(trip.date)
     if ((trip.date2 != null) && (trip.date2 != "")) {
         console.log("date2", trip.date2, trip.date2 == null, trip.date2 == "");
         date += " - " + formatDate(trip.date2);
     }
-    document.getElementById('preview-post-date').innerText = date
+    document.getElementById('tm-post-date').innerText = date
 
     document.getElementById('trotamundos-editor').classList.add('hidden');
     document.getElementById('trotamundos-preview').classList.remove('hidden');
@@ -574,9 +572,6 @@ function saveText() {
         }
 
         section.text = document.getElementById('trip-text').value;
-
-
-
 
         trip.sections[section.id] = section;
         tripsList[trip.id] = trip;
@@ -959,25 +954,25 @@ function reloadPreviewSection(data) {
     section.dataset.sectionId = data.id;
 
     if ('text' == data.type) {
-        section.classList.add('preview-text');
+        section.classList.add('tm-text');
         section.innerText = data.text;
     } else if ('image' == data.type) {
-        section.classList.add('preview-image');
+        section.classList.add('tm-image');
         photo = document.createElement('img');
-        photo.id = 'preview-photo-' + data.imageId;
+        photo.id = 'tm-photo-' + data.imageId;
         section.appendChild(photo);
         loadImageFromDB(data.imageId, photo.id);
     } else if ('subtitle' == data.type) {
-        section.classList.add('preview-subtitle');
+        section.classList.add('tm-subtitle');
         text = document.createElement('h2');
         text.innerText = data.subtitle;
         section.appendChild(text);
     }
-    document.getElementById('preview-sections-container').appendChild(section);
+    document.getElementById('tm-sections-container').appendChild(section);
 }
 
 function reloadPreviewSections(sections) {
-    var sectionsContainer = document.getElementById('preview-sections-container');
+    var sectionsContainer = document.getElementById('tm-sections-container');
 
     while (sectionsContainer.firstChild) {
         sectionsContainer.removeChild(sectionsContainer.firstChild);

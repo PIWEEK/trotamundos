@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>TROTAMUNDOS</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/trotamundos.css">
+    <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+</head>
+
+<body>
+    <div id="tm-container" class="">
+        <div class="tm-blog-title">
+            <a href="/blog">TROTAMUNDOS</a>
+        </div>
+        <div id="trotamundos-post" class="">
+            <div class="tm-post-title-container">
+                <div id="trotamundos-post-title">{{name}}</div>
+                <div id="trotamundos-post-date" class="date">
+                    {{ date }}
+                    {% if date2 %}
+                    &nbsp;-&nbsp;{{ date2 }}
+                    {% endif %}
+                </div>
+            </div>
+            <div id="tm-sections-container">
+                {% for section in sections %}
+                {% if section.type == "subtitle" %}
+                <div class="tm-subtitle">
+                    <h2>{{section.subtitle}}</h2>
+                </div>
+                {% endif %}
+                {% if section.type == "text" %}
+                <div class="tm-text">
+                    {{section.text}}
+                </div>
+                {% endif %}
+                {% if section.type == "image" %}
+                <div class="tm-image">
+                    <img id="img{{section.imageId}}" src="/data/images/{{section.imageId}}">
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script>
+        window.onload = function (e) {
+            const images = document.getElementsByTagName('img');
+            for (const image of images) {
+                const orientation = image.naturalWidth > image.naturalHeight ? 'landscape' : 'portrait';
+                image.classList.add(orientation);
+                console.log(image.id, image.naturalWidth, image.naturalHeight, orientation);
+            }
+        }
+    </script>
+</body>
+
+</html>

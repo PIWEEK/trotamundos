@@ -1,14 +1,43 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import base64
 import io
 import imghdr
 import mimetypes
 import re
+import json
 
 app = Flask(__name__)
 
 # Set the maximum content length to 10 MB (for example)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10 MB in bytes
+
+
+
+def generate_blog_index(trips):
+    dynamic_data = {
+        'trips': trips
+    }
+    html = render_template('index.html', **dynamic_data)
+    with open('blog/index.html', 'wt') as f:
+        f.write(html)
+
+def generate_post(trip):
+    dynamic_data = {
+        'name': trip['name'],
+        'date': trip['date'],
+        'date2': trip['date2'],
+        'sections': trip['sections'].values(),
+    }
+    html = render_template('post.html', **dynamic_data)
+    with open('blog/post/' + trip['id'] +'.html', 'wt') as f:
+        f.write(html)
+
+def generate_blog(data):
+    trips = json.loads(data).values()
+    generate_blog_index(trips)
+    for trip in trips:
+        generate_post(trip)
+
 
 
 
@@ -57,6 +86,7 @@ def publish():
     data = request.form.get('data')
     if data:
         save_trips(data)
+        generate_blog(data)
         return jsonify({"message": "Trips saved successfully"}), 200
     else:
         return jsonify({"error": "No data in the request."}), 400
