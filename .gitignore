@@ -1,2 +1,4 @@
 icons-orig/*
 .env
+api/data/*
+api/data/**

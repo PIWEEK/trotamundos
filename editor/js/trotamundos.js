@@ -148,11 +148,11 @@ function formatDate(strDate) {
     return `${day}/${month}/${year}`;
 }
 
-function showLoader(){
+function showLoader() {
     document.getElementById("loader").classList.remove("hidden");
 }
 
-function hideLoader(){
+function hideLoader() {
     document.getElementById("loader").classList.add("hidden");
 }
 
@@ -297,7 +297,7 @@ function previewTrip() {
     reloadPreviewSections(trip.sections);
     document.getElementById('preview-post-title').innerText = trip.name
     var date = formatDate(trip.date)
-    if ((trip.date2 != null) && (trip.date2 != "")){
+    if ((trip.date2 != null) && (trip.date2 != "")) {
         console.log("date2", trip.date2, trip.date2 == null, trip.date2 == "");
         date += " - " + formatDate(trip.date2);
     }
@@ -338,7 +338,7 @@ function reloadTrip(data) {
     tripDate = document.createElement('div');
     tripDate.classList.add('date-title');
     var date = formatDate(data.date);
-    if ((data.date2 != null) && (data.date2 != "")){
+    if ((data.date2 != null) && (data.date2 != "")) {
         date += " - " + formatDate(data.date2);
     }
     tripDate.innerHTML = date;
@@ -642,13 +642,13 @@ function openEditTextEv(ev) {
     openEditText();
 }
 
-function findTitle(){
+function findTitle() {
     var title = tripsList[currentTripId].name;
-    for (var i=0; i<sortedSections.length;i++){
-        if ("subtitle" == sortedSections[i].type){
+    for (var i = 0; i < sortedSections.length; i++) {
+        if ("subtitle" == sortedSections[i].type) {
             title = "... / " + sortedSections[i].subtitle;
         }
-        if (sortedSections[i].id == currentSectionId){
+        if (sortedSections[i].id == currentSectionId) {
             break;
         }
     }
@@ -748,61 +748,80 @@ function handleImagePreview(inputId, containerId) {
 }
 
 function publish() {
+    showLoader();
+    closeMenu();
     const formData = new FormData();
-    formData.append("data", "hello world");
+    formData.append("data", localStorage.tripsList);
 
-    fetch("/api/print", {
+    fetch("/api/publish", {
         method: "POST",
         body: formData
     })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            console.log(data.message);
+            hideLoader();
         })
         .catch(error => {
-            console.error("Error:", error);
+            hideLoader();
+            alert("Error:", error);
         });
+}
+
+async function download() {
+    closeMenu();
+    if (confirm("\u00BFSeguro que quieres descargar los viajes? Cualquier cambio no publicado se perder\u00E1") == true) {
+        showLoader()
+        const response = await fetch("/data/trotamundos.json");
+        const data = await response.json();
+        console.log(data);
+        localStorage.tripsList = JSON.stringify(data);
+        clearCache();
+        hideLoader()
+    }
+
 }
 
 
 async function clearCache() {
     try {
-      // Open the cache
-      const cache = await caches.open("trotamundos-v1");
+        // Open the cache
+        const cache = await caches.open("trotamundos-v1");
 
-      // Get all the cache keys (URLs)
-      const cacheKeys = await cache.keys();
+        // Get all the cache keys (URLs)
+        const cacheKeys = await cache.keys();
 
-      // Delete each entry in the cache
-      const deletePromises = cacheKeys.map(key => cache.delete(key));
+        // Delete each entry in the cache
+        const deletePromises = cacheKeys.map(key => cache.delete(key));
 
-      // Wait for all delete operations to complete
-      await Promise.all(deletePromises);
+        // Wait for all delete operations to complete
+        await Promise.all(deletePromises);
 
-      console.log('Cache cleared successfully.');
-      window.location.reload(true);
+        console.log('Cache cleared successfully.');
+        window.location.reload(true);
     } catch (error) {
-      console.error('Error clearing cache:', error);
+        console.error('Error clearing cache:', error);
     }
-  }
+}
 
-function sectionInputFocus(){
+function sectionInputFocus() {
     document.getElementById('section-menu-icon').classList.add('hidden');
     document.getElementById('section-save-icon').classList.remove('hidden');
 }
-function sectionInputBlur(){
+function sectionInputBlur() {
     setTimeout(() => {
         if (currentSectionId != null) {
             document.getElementById('section-menu-icon').classList.remove('hidden');
         }
         document.getElementById('section-save-icon').classList.add('hidden');
-      }, 50);
+    }, 50);
 }
 
 function initHomeControls() {
     document.getElementById('add-trip').addEventListener('click', openEditTrip, false);
     document.getElementById('home-menu-icon').addEventListener('click', openHomeMenu, false);
     document.getElementById('home-publish').addEventListener('click', publish, false);
+    document.getElementById('home-download').addEventListener('click', download, false);
     document.getElementById('home-cache').addEventListener('click', clearCache, false);
 }
 

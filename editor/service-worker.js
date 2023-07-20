@@ -7,7 +7,7 @@ const assets = [
     "/css/preview.css",
     "/libs/Sortable1-15.min.js",
     "/libs/html2canvas.min.js",
-    "/libs/jspdf2-5-1.umd.min.js",
+    "/libs/jspdf.umd.min.js",
     "/js/trotamundos.js",
 
     "icons/bin.png",
@@ -55,15 +55,18 @@ self.addEventListener("install", (e) => {
 self.addEventListener("fetch", (e) => {
     e.respondWith(
       (async () => {
+        const url = e.request.url;
         const r = await caches.match(e.request);
-        console.log(`[Service Worker] Fetching resource: ${e.request.url}`);
+        console.log(`[Service Worker] Fetching resource: ${url}`);
         if (r) {
           return r;
         }
         const response = await fetch(e.request);
-        const cache = await caches.open(cacheName);
-        console.log(`[Service Worker] Caching new resource: ${e.request.url}`);
-        cache.put(e.request, response.clone());
+        if ((url.toUpperCase().endsWith("JPG")) || (url.toUpperCase().endsWith("PNG"))) {
+          const cache = await caches.open(cacheName);
+          console.log(`[Service Worker] Caching new resource: ${url}`);
+          cache.put(e.request, response.clone());
+        }
         return response;
       })(),
     );
