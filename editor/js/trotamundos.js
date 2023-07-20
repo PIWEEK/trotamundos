@@ -843,6 +843,7 @@ async function download() {
 
 async function clearCache() {
     try {
+        showLoader()
         // Open the cache
         const cache = await caches.open("trotamundos-v1");
 
@@ -856,6 +857,7 @@ async function clearCache() {
         await Promise.all(deletePromises);
 
         console.log('Cache cleared successfully.');
+        hideLoader();
         window.location.reload(true);
     } catch (error) {
         console.error('Error clearing cache:', error);
