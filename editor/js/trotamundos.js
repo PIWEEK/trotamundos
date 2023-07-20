@@ -33,7 +33,6 @@ function saveImageDB(imageInputId, imageId, callback) {
     reader.readAsDataURL(file);
 }
 
-
 function saveImageDB2(data, imageId, callback) {
     const transaction = db.transaction(imageStoreName, 'readwrite');
     const imageStore = transaction.objectStore(imageStoreName);
@@ -54,13 +53,25 @@ function saveImageDB2(data, imageId, callback) {
     };
 }
 
-function loadImageFromDB(imageId, targetImage) {
-    db
+function getImageFromDBPromise(imageId) {
+    return db
         .transaction(imageStoreName, 'readonly')
         .objectStore(imageStoreName)
-        .get(imageId).onsuccess = (event) => {
-            var imageObject = event.target.result;
-            var imageElement = document.getElementById(targetImage);
+        .get(imageId)
+}
+
+function loadImageFromDB(imageId, targetImage) {
+    var loader = db
+        .transaction(imageStoreName, 'readonly')
+        .objectStore(imageStoreName)
+        .get(imageId);
+
+
+    loader.onsuccess = (event) => {
+        var imageElement = document.getElementById(targetImage);
+        var imageObject = event.target.result;
+        if (imageObject !== undefined) {
+
             imageElement.src = imageObject.data;
             if (imageElement.naturalWidth > imageElement.naturalHeight) {
                 imageElement.classList.add("landscape");
@@ -69,7 +80,15 @@ function loadImageFromDB(imageId, targetImage) {
                 imageElement.classList.remove("landscape");
                 imageElement.classList.add("portrait");
             }
-        };
+        } else {
+            console.log(">>>>>>>>>>>>>>undefined", targetImage, imageElement);
+            imageElement.src = "/data/images/" + imageId;
+        }
+    }
+    loader.onerror = (event) => {
+        console.log(">>>>>>>>>>>>>>onerror")
+        imageElement.src = "/data/images/" + imageId;
+    };
 }
 
 function deleteImageById(imageId) {
@@ -86,14 +105,17 @@ function deleteImageById(imageId) {
         console.error("Error deleting image from IndexedDB:", event.target.error);
     };
 }
+
+function getAllImagesFromDBPromise() {
+    const transaction = db.transaction(imageStoreName, "readonly");
+    const imageStore = transaction.objectStore(imageStoreName);
+
+    // Step 3: Retrieve all elements using getAll()
+    const getAllRequest = imageStore.getAll();
+
+    return getAllRequest;
+}
 ///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
 
 
 
@@ -747,9 +769,50 @@ function handleImagePreview(inputId, containerId) {
     }
 }
 
+
+function publishImage(imageObject) {
+    const formData = new FormData();
+    formData.append("image_data", imageObject.data);
+    formData.append("image_id", imageObject.id);
+
+    fetch("/api/save_image", {
+        method: "POST",
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message);
+            deleteImageById(imageObject.id);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+}
+
+function publishImages() {
+    //upload images
+    imgPromise = getAllImagesFromDBPromise();
+
+    imgPromise.onsuccess = function (event) {
+        const allElements = event.target.result;
+        allElements.forEach(function (img) {
+            publishImage(img);
+        })
+    };
+
+    imgPromise.onerror = function (event) {
+        console.error("Error retrieving elements:", event.target.error);
+    };
+}
+
+
 function publish() {
     showLoader();
     closeMenu();
+    publishImages();
+
+
+
     const formData = new FormData();
     formData.append("data", localStorage.tripsList);
 
