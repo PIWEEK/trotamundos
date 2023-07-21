@@ -853,7 +853,6 @@ async function download() {
     const response = await fetch("/data/trotamundos.json");
     const data = await response.json();
     tripsList = Object.assign(tripsList, data);
-    console.log(tripsList);
     localStorage.tripsList = JSON.stringify(tripsList);
     clearCache();
     hideLoader();
@@ -1026,7 +1025,6 @@ function reloadPreviewSections(sections) {
 
 function toSpanishDate(date1, date2) {
     var dateParts = date1.split("-");
-    console.log(date1, date2);
 
     const day1 = parseInt(dateParts[2]);
     const month1 = months[parseInt(dateParts[1])]
