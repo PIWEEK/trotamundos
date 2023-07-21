@@ -5,13 +5,48 @@ import imghdr
 import mimetypes
 import re
 import json
+from datetime import datetime
 
 app = Flask(__name__)
+
+
 
 # Set the maximum content length to 10 MB (for example)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10 MB in bytes
 
+months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+
+def transform_to_spanish_date(date1, date2):
+    # Convert the date string to a datetime object
+    date_obj1 = datetime.strptime(date1, '%Y-%m-%d')
+
+    # Get day, month, and year
+    day1 = date_obj1.day
+    month1 = months[date_obj1.month - 1]
+    year1 = date_obj1.year
+
+    spanish_date = ""
+
+    if date2 is None or date2 == "":
+        spanish_date = f"{day1} de {month1} de {year1}"
+    else:
+        date_obj2 = datetime.strptime(date2, '%Y-%m-%d')
+        day2 = date_obj2.day
+        month2 = months[date_obj2.month]
+        year2 = date_obj2.year
+
+        if year1 == year2:
+            if month1 == month2:
+                spanish_date = f"del {day1} al {day2} de {month1} de {year1}"
+            else:
+                spanish_date = f"del {day1} de {month1} al {day2} de {month2} de {year2}"
+        else:
+            spanish_date = f"del {day1} de {month1} de {year1} al {day2} de {month2} de {year2}"
+
+    return spanish_date
+
 def generate_blog_index(trips):
+
     dynamic_data = {
         'trips': trips
     }
@@ -20,10 +55,10 @@ def generate_blog_index(trips):
         f.write(html)
 
 def generate_post(trip):
+
     dynamic_data = {
         'name': trip['name'],
         'date': trip['date'],
-        'date2': trip['date2'],
         'sections': sorted(trip['sections'].values(), key=lambda x: x['pos'])
     }
     html = render_template('post.html', **dynamic_data)
@@ -32,9 +67,13 @@ def generate_post(trip):
 
 def generate_blog(data):
     trips = data.values()
-    generate_blog_index(trips)
     for trip in trips:
+        d = transform_to_spanish_date(trip['date'], trip['date2'])
+        trip['date'] = d
         generate_post(trip)
+
+    generate_blog_index(trips)
+
 
 def secure_filename(filename):
     return re.sub(r'[^\w\.-]', '_', filename.strip())

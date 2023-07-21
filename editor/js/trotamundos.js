@@ -316,11 +316,7 @@ function previewTrip() {
     var trip = tripsList[currentTripId];
     reloadPreviewSections(trip.sections);
     document.getElementById('tm-post-title').innerText = trip.name
-    var date = formatDate(trip.date)
-    if ((trip.date2 != null) && (trip.date2 != "")) {
-        console.log("date2", trip.date2, trip.date2 == null, trip.date2 == "");
-        date += " - " + formatDate(trip.date2);
-    }
+    var date = toSpanishDate(trip.date, trip.date2)
     document.getElementById('tm-post-date').innerText = date
 
     document.getElementById('trotamundos-editor').classList.add('hidden');
@@ -935,6 +931,8 @@ window.onload = function (e) {
 
 //////////////// PREVIEW /////////////////////
 
+const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+
 function initPreviewControls() {
     document.getElementById('preview-go-back').addEventListener('click', closePreview, false);
     document.getElementById('preview-to-pdf').addEventListener('click', previewToPdf, false);
@@ -945,8 +943,6 @@ function closePreview() {
     document.getElementById('trotamundos-preview').classList.add('hidden');
     document.getElementById('trotamundos-editor').classList.remove('hidden');
 }
-
-
 
 function reloadPreviewSection(data) {
 
@@ -984,6 +980,39 @@ function reloadPreviewSections(sections) {
     sections.forEach(reloadPreviewSection);
 }
 
+
+
+function toSpanishDate(date1, date2){
+    var dateParts = date1.split("-");
+    console.log(date1, date2);
+
+    const day1 = parseInt(dateParts[2]);
+    const month1 = months[parseInt(dateParts[1])]
+    const year1 = parseInt(dateParts[0]);
+
+    var spanishDate;
+
+    if ((date2 == null) || (date2 == "")){
+        spanishDate = day1 + " de " + month1 + " de " + year1;
+    } else {
+        dateParts = date2.split("-");
+        const day2 = parseInt(dateParts[2]);
+        const month2 = months[parseInt(dateParts[1])]
+        const year2 = parseInt(dateParts[0])
+
+        if (year1 == year2){
+            if (month1 == month2){
+                spanishDate = "del " + day1 + " al " + day2 + " de " + month1 + " de " + year1
+            } else {
+                spanishDate = "del " + day1 + " de " + month1 + " al " + day2 + " de " + month2 + " de " + year2
+            }
+        } else {
+            spanishDate = "del " + day1 + " de " + month1 + " de " + year1 + " al " + day2 + " de " + month2 + " de " + year2
+        }
+    }
+
+    return spanishDate
+}
 
 
 
