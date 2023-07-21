@@ -31,20 +31,26 @@ def generate_post(trip):
         f.write(html)
 
 def generate_blog(data):
-    trips = json.loads(data).values()
+    trips = data.values()
     generate_blog_index(trips)
     for trip in trips:
         generate_post(trip)
-
-
-
 
 def secure_filename(filename):
     return re.sub(r'[^\w\.-]', '_', filename.strip())
 
 def save_trips(data):
-    with open('data/trotamundos.json', 'wt') as f:
-        f.write(data)
+    with open('data/trotamundos.json', 'w') as file:
+        json.dump(data, file)
+
+def read_trips():
+    try:
+        with open('data/trotamundos.json', 'r') as file:
+            data = json.load(file)
+        return data
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Return an empty JSON dictionary if the file doesn't exist or is empty
+        return {}
 
 
 def save_image(filename, data):
@@ -61,6 +67,7 @@ def get_extension(image_data):
     except Exception as e:
         print("Error while getting MIME type:", e)
         return None
+
 
 
 @app.route('/save_image', methods=['POST'])
@@ -83,8 +90,11 @@ def save_base64_image():
 def publish():
     data = request.form.get('data')
     if data:
-        save_trips(data)
-        generate_blog(data)
+        new_trips =  json.loads(data)
+        trips = read_trips()
+        trips.update(new_trips)
+        save_trips(trips)
+        generate_blog(trips)
         return jsonify({"message": "Trips saved successfully"}), 200
     else:
         return jsonify({"error": "No data in the request."}), 400

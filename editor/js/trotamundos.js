@@ -819,7 +819,7 @@ function publish() {
         .then(response => response.json())
         .then(data => {
             console.log(data.message);
-            hideLoader();
+            download();
         })
         .catch(error => {
             hideLoader();
@@ -829,16 +829,14 @@ function publish() {
 
 async function download() {
     closeMenu();
-    if (confirm("\u00BFSeguro que quieres descargar los viajes? Cualquier cambio no publicado se perder\u00E1") == true) {
-        showLoader()
-        const response = await fetch("/data/trotamundos.json");
-        const data = await response.json();
-        console.log(data);
-        localStorage.tripsList = JSON.stringify(data);
-        clearCache();
-        hideLoader()
-    }
-
+    showLoader()
+    const response = await fetch("/data/trotamundos.json");
+    const data = await response.json();
+    tripsList = Object.assign(tripsList, data);
+    console.log(tripsList);
+    localStorage.tripsList = JSON.stringify(tripsList);
+    clearCache();
+    hideLoader();
 }
 
 
