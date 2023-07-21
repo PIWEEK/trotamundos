@@ -581,34 +581,38 @@ function saveText() {
 }
 
 function saveImage() {
-    if (document.getElementById('section-image').checkValidity()) {
-        showLoader();
-        var trip = tripsList[currentTripId];
-        var section;
-        if (currentSectionId != null) {
-            section = trip.sections[currentSectionId];
+    //Do not delete/save image if it hadn't change
+    if (document.getElementById('trip-image').dataset.dirty == "true") {
+        if (document.getElementById('section-image').checkValidity()) {
+            showLoader();
+            var trip = tripsList[currentTripId];
+            var section;
+            if (currentSectionId != null) {
+                section = trip.sections[currentSectionId];
+            } else {
+                section = { id: uuidv4(), type: "image", pos: Object.keys(trip.sections).length };
+            }
+
+            var oldImageId = section.imageId;
+            var imageId = uuidv4();
+            section.imageId = imageId;
+
+            trip.sections[section.id] = section;
+            tripsList[trip.id] = trip;
+            save();
+
+            //Delete old image
+            if (oldImageId != null) {
+                deleteImageById(oldImageId);
+            }
+            saveImageDB('trip-image', imageId, openViewTrip);
+
+
         } else {
-            section = { id: uuidv4(), type: "image", pos: Object.keys(trip.sections).length };
+            document.getElementById('section-image').reportValidity();
         }
-
-
-        var oldImageId = section.imageId;
-        var imageId = uuidv4();
-        section.imageId = imageId;
-
-        trip.sections[section.id] = section;
-        tripsList[trip.id] = trip;
-        save();
-
-        //Delete old image
-        if (oldImageId != null) {
-            deleteImageById(oldImageId);
-        }
-        saveImageDB('trip-image', imageId, openViewTrip);
-
-
     } else {
-        document.getElementById('section-image').reportValidity();
+        openViewTrip();
     }
 }
 
@@ -695,15 +699,26 @@ function openEditImageEv(ev) {
 function openEditImage() {
     currentSection = "image";
     var trip = tripsList[currentTripId];
+    select1Image(true);
+    document.getElementById('trip-image').dataset.dirty = false;
+    document.getElementById('trip-image2').dataset.dirty = false;
 
     if (currentSectionId == null) {
         document.getElementById('trip-image').value = '';
         document.getElementById('trip-image-preview').src = 'icons/photo-placeholder.png';
+        document.getElementById('trip-image2').value = '';
+
+        document.getElementById('trip-image-preview2').src = "icons/photo-placeholder.png";
         document.getElementById('section-menu-icon').classList.add('hidden');
     } else {
         section = trip.sections[currentSectionId]
         loadImageFromDB(section.imageId, 'trip-image-preview');
         document.getElementById('section-menu-icon').classList.remove('hidden');
+
+        if ((section.imageId2 != null) && (section.imageId2 != "")) {
+            select2Images(true);
+            loadImageFromDB(section.imageId2, 'trip-image-preview2');
+        }
     }
 
     document.getElementById('section-title').innerHTML = findTitle();
@@ -739,10 +754,16 @@ function previewImage(ev) {
     handleImagePreview('trip-image', 'trip-image-preview');
 }
 
+function previewImage2(ev) {
+    handleImagePreview('trip-image2', 'trip-image-preview2');
+}
+
 function handleImagePreview(inputId, containerId) {
     const fileInput = document.getElementById(inputId);
     const previewContainer = document.getElementById(containerId);
     const file = fileInput.files[0];
+
+    fileInput.dataset.dirty = true;
 
     if (file) {
         const reader = new FileReader();
@@ -871,6 +892,25 @@ function sectionInputBlur() {
     }, 50);
 }
 
+function select1Image(force) {
+    if (force || (document.getElementById('image-type-2').classList.contains("selected"))) {
+        document.getElementById('image-type-1').classList.add("selected");
+        document.getElementById('image-type-2').classList.remove("selected");
+        document.getElementById('trip-preview2').classList.add("hidden");
+
+        document.getElementById('trip-image2').value = '';
+        document.getElementById('trip-image-preview2').src = "icons/photo-placeholder.png";
+    }
+}
+
+function select2Images(force) {
+    if (force || (document.getElementById('image-type-1').classList.contains("selected"))) {
+        document.getElementById('image-type-1').classList.remove("selected");
+        document.getElementById('image-type-2').classList.add("selected");
+        document.getElementById('trip-preview2').classList.remove("hidden");
+    }
+}
+
 function initHomeControls() {
     document.getElementById('add-trip').addEventListener('click', openEditTrip, false);
     document.getElementById('home-menu-icon').addEventListener('click', openHomeMenu, false);
@@ -885,6 +925,7 @@ function initSectionControls() {
     document.getElementById('section-cancel').addEventListener('click', goBack, false);
 
     document.getElementById('trip-image').addEventListener('change', previewImage);
+    document.getElementById('trip-image2').addEventListener('change', previewImage2);
     document.getElementById('section-menu-icon').addEventListener('click', openSectionMenu, false);
     document.getElementById('delete-section').addEventListener('click', confirmDeleteSection, false);
 
@@ -898,7 +939,8 @@ function initSectionControls() {
     document.getElementById('trip-text').addEventListener('focus', sectionInputFocus);
     document.getElementById('trip-text').addEventListener('blur', sectionInputBlur);
 
-
+    document.getElementById('image-type-1').addEventListener('click', select1Image, false);
+    document.getElementById('image-type-2').addEventListener('click', select2Images, false);
 }
 
 
@@ -914,7 +956,6 @@ function preventEnter() {
 }
 
 
-
 window.onload = function (e) {
     initServiceWorker();
 
@@ -926,8 +967,6 @@ window.onload = function (e) {
 
     goHome();
 }
-
-
 
 //////////////// PREVIEW /////////////////////
 
@@ -982,7 +1021,7 @@ function reloadPreviewSections(sections) {
 
 
 
-function toSpanishDate(date1, date2){
+function toSpanishDate(date1, date2) {
     var dateParts = date1.split("-");
     console.log(date1, date2);
 
@@ -992,7 +1031,7 @@ function toSpanishDate(date1, date2){
 
     var spanishDate;
 
-    if ((date2 == null) || (date2 == "")){
+    if ((date2 == null) || (date2 == "")) {
         spanishDate = day1 + " de " + month1 + " de " + year1;
     } else {
         dateParts = date2.split("-");
@@ -1000,8 +1039,8 @@ function toSpanishDate(date1, date2){
         const month2 = months[parseInt(dateParts[1])]
         const year2 = parseInt(dateParts[0])
 
-        if (year1 == year2){
-            if (month1 == month2){
+        if (year1 == year2) {
+            if (month1 == month2) {
                 spanishDate = "del " + day1 + " al " + day2 + " de " + month1 + " de " + year1
             } else {
                 spanishDate = "del " + day1 + " de " + month1 + " al " + day2 + " de " + month2 + " de " + year2
