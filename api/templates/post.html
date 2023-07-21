@@ -59,12 +59,16 @@
             const texts = document.getElementsByClassName('tm-text');
             for (const text of texts) {
                 // Regular expression to match web addresses in the text
-                const webAddressRegex = /(https?:\/\/[^\s]+)/g;
+                //const webAddressRegex = /(https?:\/\/[^\s]+)/g;
+                const webAddressRegex = /(https?:\/\/\S+)|\((https?:\/\/\S+)\)/g;
 
                 // Replace web addresses with clickable links
                 text.innerHTML = text.innerHTML.replace(
                     webAddressRegex,
-                    '<a href="$1" target="_blank">$1</a>'
+                    (match, url1, url2) => {
+                        const url = url1 || url2;
+                        return `<a href="${url}" target="_blank">${url}</a>`;
+                    }
                 );
             }
         }
