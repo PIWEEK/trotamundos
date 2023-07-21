@@ -66,7 +66,7 @@ def generate_post(trip):
         f.write(html)
 
 def generate_blog(data):
-    trips = data.values()
+    trips = sorted(data.values(), key=lambda x: x['date'], reverse=True)
     for trip in trips:
         d = transform_to_spanish_date(trip['date'], trip['date2'])
         trip['date'] = d

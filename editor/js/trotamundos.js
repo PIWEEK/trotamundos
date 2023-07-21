@@ -373,9 +373,12 @@ function reloadTrips() {
         tripsContainer.removeChild(tripsContainer.firstChild);
     }
 
-    Object.values(tripsList).forEach(reloadTrip);
+    var sortedTrips = Object.values(tripsList)
+    sortedTrips.sort((a, b) => b.date.localeCompare(a.date));
 
-    initTripsSortable(tripsContainer);
+    sortedTrips.forEach(reloadTrip);
+
+    //initTripsSortable(tripsContainer);
 }
 
 function goHome() {
