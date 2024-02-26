@@ -7,4 +7,6 @@ api/__pycache__/**
 api/blog/index.html
 api/blog/post/*
 api/blog/post/**
+**/.clj-kondo/
+**/.lsp/
 

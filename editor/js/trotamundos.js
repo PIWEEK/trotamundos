@@ -881,6 +881,22 @@ async function clearCache() {
     }
 }
 
+function toggleFullScreen() {
+    var doc = window.document;
+    var docEl = doc.documentElement;
+
+    var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+    if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+      requestFullScreen.call(docEl);
+    }
+    else {
+      cancelFullScreen.call(doc);
+    }
+  }
+
+
 function sectionInputFocus() {
     document.getElementById('section-menu-icon').classList.add('hidden');
     document.getElementById('section-save-icon').classList.remove('hidden');
@@ -919,6 +935,7 @@ function initHomeControls() {
     document.getElementById('home-publish').addEventListener('click', publish, false);
     document.getElementById('home-download').addEventListener('click', download, false);
     document.getElementById('home-cache').addEventListener('click', clearCache, false);
+    document.getElementById('full-screen').addEventListener('click', toggleFullScreen, false);
 }
 
 function initSectionControls() {
@@ -957,9 +974,15 @@ function preventEnter() {
     });
 }
 
+function backButton(e) {
+    e.preventDefault();
+}
+
 
 window.onload = function (e) {
     initServiceWorker();
+
+    document.addEventListener('backbutton', backButton);
 
     initHomeControls();
     initTripControls();
