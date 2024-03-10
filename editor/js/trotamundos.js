@@ -127,6 +127,8 @@ var currentSection = null;
 var sectionsSortable = null;
 var sortedSections = [];
 
+let state = { currentTripId: null };
+
 if (localStorage.tripsList) {
     tripsList = JSON.parse(localStorage.tripsList);
 }
@@ -271,7 +273,7 @@ function confirmDeleteTrip() {
         }
         delete tripsList[currentTripId];
         save();
-        goHome();
+        goHomeAndSaveState();
     }
     closeMenu();
 }
@@ -299,7 +301,7 @@ function initTripControls() {
     document.getElementById('ctrl-image').addEventListener('click', openEditImage, false);
     document.getElementById('ctrl-subtitle').addEventListener('click', openEditSubtitle, false);
 
-    document.getElementById('go-home').addEventListener('click', goHome, false);
+    document.getElementById('go-home').addEventListener('click', goHomeAndSaveState, false);
     document.getElementById('trip-menu-icon').addEventListener('click', openTripMenu, false);
     document.getElementById('overlay').addEventListener('click', closeMenu, false);
 
@@ -307,8 +309,6 @@ function initTripControls() {
     document.getElementById('delete-trip').addEventListener('click', confirmDeleteTrip, false);
 
     document.getElementById('trip-title').addEventListener('click', openEditTrip, false);
-
-
 }
 
 function previewTrip() {
@@ -381,6 +381,11 @@ function reloadTrips() {
     //initTripsSortable(tripsContainer);
 }
 
+function goHomeAndSaveState(){
+    goHome();
+    saveState();
+}
+
 function goHome() {
     currentTripId = null;
     document.getElementById('trip-screen').classList.add('hidden');
@@ -395,14 +400,17 @@ function goBack() {
     if (currentTripId == null) {
         goHome();
     } else {
-        openViewTrip(currentTripId);
+        openViewTrip();
     }
+    saveState();
 }
 
 
 
 function openViewTripEv(ev) {
-    openViewTrip(ev.currentTarget.dataset.tripId);
+    currentTripId = ev.currentTarget.dataset.tripId;
+    openViewTrip();
+    saveState();
 }
 
 function reloadSection(data) {
@@ -476,19 +484,11 @@ function reloadSections(sections) {
     initSectionsSortable(sectionsContainer);
 }
 
-function openViewTrip(tripId) {
+function openViewTrip() {
     closeControls();
     currentSectionId = null;
 
-    if (tripId) {
-        currentTripId = tripId;
-    } else {
-        tripId = currentTripId;
-    }
-
-    var trip = tripsList[tripId];
-
-
+    var trip = tripsList[currentTripId];
     document.getElementById('detail-trip-name').innerHTML = trip.name;
     reloadSections(trip.sections);
 
@@ -555,7 +555,9 @@ function saveTrip() {
 
         tripsList[trip.id] = trip;
         save();
-        openViewTrip(trip.id);
+
+        currentTripId = trip.id;
+        openViewTrip();
     } else {
         document.getElementById('section-trip-data').reportValidity();
     }
@@ -577,7 +579,8 @@ function saveText() {
         tripsList[trip.id] = trip;
         save();
 
-        openViewTrip(trip.id);
+        currentTripId = trip.id;
+        openViewTrip();
     } else {
         document.getElementById('section-text').reportValidity();
     }
@@ -635,7 +638,8 @@ function saveSubtitle() {
         tripsList[trip.id] = trip;
         save();
 
-        openViewTrip(trip.id);
+        currentTripId = trip.id;
+        openViewTrip();
     } else {
         document.getElementById('section-subtitle').reportValidity();
     }
@@ -656,6 +660,7 @@ function openSection(sectionId) {
     document.getElementById('section-trip-data').classList.add('hidden');
 
     document.getElementById(sectionId).classList.remove('hidden');
+    saveState();
 }
 
 function openEditTextEv(ev) {
@@ -935,7 +940,6 @@ function initHomeControls() {
     document.getElementById('home-publish').addEventListener('click', publish, false);
     document.getElementById('home-download').addEventListener('click', download, false);
     document.getElementById('home-cache').addEventListener('click', clearCache, false);
-    document.getElementById('full-screen').addEventListener('click', toggleFullScreen, false);
 }
 
 function initSectionControls() {
@@ -963,6 +967,34 @@ function initSectionControls() {
 }
 
 
+function render(state){
+    console.log ("render", state);
+    if (state.currentTripId == null){
+        console.log ("render home");
+        goHome();
+    } else {
+        console.log ("render trip");
+        openViewTrip();
+    }
+}
+
+function saveState(){
+    state = { currentTripId: currentTripId };
+    window.history.pushState(state, null, "");
+    console.log("saving state", state);
+}
+
+function initStateStack(){
+    window.history.replaceState(state, null, "");
+    window.onpopstate = function (event) {
+        if (event.state) {
+          state = event.state;
+        }
+        render(state); // See example render function in summary below
+      };
+}
+
+
 function preventEnter() {
     const inputs = document.querySelectorAll("input");
     inputs.forEach(function (input) {
@@ -974,21 +1006,16 @@ function preventEnter() {
     });
 }
 
-function backButton(e) {
-    e.preventDefault();
-}
-
 
 window.onload = function (e) {
     initServiceWorker();
-
-    document.addEventListener('backbutton', backButton);
 
     initHomeControls();
     initTripControls();
     initSectionControls();
     initPreviewControls();
     preventEnter();
+    initStateStack();
 
     goHome();
 }
