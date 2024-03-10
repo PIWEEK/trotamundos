@@ -980,7 +980,7 @@ function render(state){
 
 function saveState(){
     state = { currentTripId: currentTripId };
-    window.history.pushState(state, null, "");
+    window.history.pushState(state, null, uuidv4());
     console.log("saving state", state);
 }
 
