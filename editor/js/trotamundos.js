@@ -495,6 +495,7 @@ function openViewTrip() {
     document.getElementById('home-screen').classList.add('hidden');
     document.getElementById('trip-screen').classList.remove('hidden');
     document.getElementById('section-screen').classList.add('hidden');
+    window.scrollTo(0, document.body.scrollHeight);
 }
 
 
