@@ -879,7 +879,7 @@ async function clearCache() {
         await Promise.all(deletePromises);
 
         console.log('Cache cleared successfully.');
-        window.location.assign("/");
+        window.location.reload();
     } catch (error) {
         console.error('Error clearing cache:', error);
     }
@@ -979,7 +979,7 @@ function render(state) {
 
 function saveState() {
     state = { currentTripId: currentTripId };
-    window.history.pushState(state, null, uuidv4());
+    window.history.pushState(state, null);
     console.log("saving state", state);
 }
 
