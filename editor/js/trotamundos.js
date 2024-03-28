@@ -381,7 +381,7 @@ function reloadTrips() {
     //initTripsSortable(tripsContainer);
 }
 
-function goHomeAndSaveState(){
+function goHomeAndSaveState() {
     goHome();
     saveState();
 }
@@ -827,12 +827,11 @@ function publishImages() {
 }
 
 
-function publish() {
+async function publish() {
     showLoader();
     closeMenu();
     publishImages();
-
-
+    await new Promise(r => setTimeout(r, 10000));
 
     const formData = new FormData();
     formData.append("data", localStorage.tripsList);
@@ -880,7 +879,7 @@ async function clearCache() {
         await Promise.all(deletePromises);
 
         console.log('Cache cleared successfully.');
-        window.location.reload(true);
+        window.location.assign("/");
     } catch (error) {
         console.error('Error clearing cache:', error);
     }
@@ -893,13 +892,13 @@ function toggleFullScreen() {
     var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
     var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
-    if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-      requestFullScreen.call(docEl);
+    if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        requestFullScreen.call(docEl);
     }
     else {
-      cancelFullScreen.call(doc);
+        cancelFullScreen.call(doc);
     }
-  }
+}
 
 
 function sectionInputFocus() {
@@ -967,31 +966,31 @@ function initSectionControls() {
 }
 
 
-function render(state){
-    console.log ("render", state);
-    if (state.currentTripId == null){
-        console.log ("render home");
+function render(state) {
+    console.log("render", state);
+    if (state.currentTripId == null) {
+        console.log("render home");
         goHome();
     } else {
-        console.log ("render trip");
+        console.log("render trip");
         openViewTrip();
     }
 }
 
-function saveState(){
+function saveState() {
     state = { currentTripId: currentTripId };
     window.history.pushState(state, null, uuidv4());
     console.log("saving state", state);
 }
 
-function initStateStack(){
+function initStateStack() {
     window.history.replaceState(state, null, "");
     window.onpopstate = function (event) {
         if (event.state) {
-          state = event.state;
+            state = event.state;
         }
         render(state); // See example render function in summary below
-      };
+    };
 }
 
 
