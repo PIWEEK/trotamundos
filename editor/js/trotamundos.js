@@ -831,7 +831,7 @@ async function publish() {
     showLoader();
     closeMenu();
     publishImages();
-    await new Promise(r => setTimeout(r, 10000));
+    await new Promise(r => setTimeout(r, 30000));
 
     const formData = new FormData();
     formData.append("data", localStorage.tripsList);
