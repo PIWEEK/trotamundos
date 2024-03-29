@@ -807,6 +807,7 @@ function publishImage(imageObject) {
         })
         .catch(error => {
             console.error("Error:", error);
+            alert("Error uploading image: " + error);
         });
 }
 
@@ -816,6 +817,7 @@ function publishImages() {
 
     imgPromise.onsuccess = function (event) {
         const allElements = event.target.result;
+        alert("Uploading images: " + allElements.length);
         allElements.forEach(function (img) {
             publishImage(img);
         })
