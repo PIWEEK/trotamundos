@@ -732,6 +732,8 @@ function openEditImage() {
     document.getElementById('section-title').innerHTML = findTitle();
     document.getElementById('section-icon').src = 'icons/photo.png';
 
+    document.getElementById('trip-image').click();
+
     openSection('section-image');
 }
 
