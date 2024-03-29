@@ -498,7 +498,6 @@ function openViewTrip() {
     window.scrollTo(0, document.body.scrollHeight);
 }
 
-
 function openEditTrip() {
     var trip;
     currentSection = "trip";
