@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, render_template
+from PIL import Image
 import base64
 import io
 import imghdr
@@ -96,6 +97,10 @@ def save_image(filename, data):
     filename = "data/images/" + secure_filename(filename)
     with open(filename, 'wb') as f:
         f.write(data)
+
+    image = Image.open(filename)
+    resized = image.thumbnail((1920, 1920))
+    image.save(filename, 'jpeg')
     return filename
 
 def get_extension(image_data):
