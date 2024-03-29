@@ -11,8 +11,8 @@ app = Flask(__name__)
 
 
 
-# Set the maximum content length to 10 MB (for example)
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10 MB in bytes
+# Set the maximum content length to 100 MB (for example)
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB in bytes
 
 months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 
@@ -141,3 +141,4 @@ def publish():
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=8081)
+

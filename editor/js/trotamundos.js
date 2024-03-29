@@ -800,7 +800,13 @@ function publishImage(imageObject) {
         method: "POST",
         body: formData
     })
-        .then(response => response.json())
+        .then(async response => {
+            if (response.ok) {
+                return response.json()
+            } else {
+                throw new Error(await response.text());
+            }
+        })
         .then(data => {
             console.log(data.message);
             deleteImageById(imageObject.id);
@@ -817,7 +823,6 @@ function publishImages() {
 
     imgPromise.onsuccess = function (event) {
         const allElements = event.target.result;
-        alert("Uploading images: " + allElements.length);
         allElements.forEach(function (img) {
             publishImage(img);
         })
