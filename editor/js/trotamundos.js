@@ -854,7 +854,7 @@ async function publish() {
 async function download() {
     closeMenu();
     showLoader()
-    const response = await fetch("/data/trotamundos.json");
+    const response = await fetch("/data/trotamundos.json?nocache=" + uuidv4());
     const data = await response.json();
     tripsList = Object.assign(tripsList, data);
     localStorage.tripsList = JSON.stringify(tripsList);
