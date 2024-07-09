@@ -123,6 +123,7 @@ var tripsList = {};
 var currentTripId = null;
 var currentSectionId = null;
 var currentSection = null;
+var collapsed = [];
 
 var sectionsSortable = null;
 var sortedSections = [];
@@ -133,10 +134,18 @@ if (localStorage.tripsList) {
     tripsList = JSON.parse(localStorage.tripsList);
 }
 
+if (localStorage.collapsed) {
+    collapsed = JSON.parse(localStorage.collapsed);
+}
+
 ////////////////////
 
 function save() {
     localStorage.tripsList = JSON.stringify(tripsList);
+}
+
+function saveCollapsed() {
+    localStorage.collapsed = JSON.stringify(collapsed);
 }
 
 function getSection(trip, sectionId) {
@@ -463,8 +472,21 @@ function reloadSection(data) {
         text.dataset.sectionId = data.id;
         text.addEventListener('click', openEditSubtitleEv, false);
 
+        expand = document.createElement('img');
+        if (collapsed.includes(data.id)) {
+            expand.src = 'icons/expand.png';
+            section.classList.remove("draggable");
+        } else {
+            expand.src = 'icons/collapse.png';
+        }
+
+        expand.classList.add('icon');
+        expand.dataset.sectionId = data.id;
+        expand.addEventListener('click', toggleSubtitleEv, false);
+
         section.appendChild(img);
         section.appendChild(text);
+        section.appendChild(expand);
     }
     document.getElementById('sections-container').appendChild(section);
 }
@@ -479,7 +501,19 @@ function reloadSections(sections) {
     sortedSections = Object.values(sections)
     sortedSections.sort((a, b) => a.pos - b.pos);
 
-    sortedSections.forEach(reloadSection);
+    show = true;
+
+    for (let section of sortedSections) {
+        if (show || ('subtitle' == section.type)) {
+            reloadSection(section);
+        }
+
+        if ('subtitle' == section.type) {
+            show = !collapsed.includes(section.id);
+        }
+    }
+
+    //sortedSections.forEach(reloadSection);
 
     initSectionsSortable(sectionsContainer);
 }
@@ -757,6 +791,20 @@ function openEditSubtitle() {
     document.getElementById('section-title').innerHTML = trip.name;
     document.getElementById('section-icon').src = 'icons/title.png';
     openSection('section-subtitle');
+}
+
+function toggleSubtitleEv(ev) {
+    handleToggleSubtitleEv(ev.currentTarget.dataset.sectionId);
+}
+
+function handleToggleSubtitleEv(id) {
+    if (collapsed.includes(id)) {
+        collapsed = collapsed.filter(item => item !== id);
+    } else {
+        collapsed.push(id);
+    }
+    saveCollapsed();
+    openViewTrip();
 }
 
 
