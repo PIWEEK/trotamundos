@@ -463,6 +463,10 @@ function reloadSection(data) {
         loadImageFromDB(data.imageId, photo.id);
     } else if ('subtitle' == data.type) {
         img.src = 'icons/title.png';
+
+        section.dataset.sectionId = data.id;
+        section.addEventListener('click', toggleSubtitleEv, true);
+
         text = document.createElement('div');
         text.classList.add('container');
         text.classList.add('text-container');
@@ -479,11 +483,7 @@ function reloadSection(data) {
         } else {
             expand.src = 'icons/collapse.png';
         }
-
-        expand.classList.add('icon');
-        expand.dataset.sectionId = data.id;
-        expand.addEventListener('click', toggleSubtitleEv, false);
-
+        //expand.classList.add('icon');
         section.appendChild(img);
         section.appendChild(text);
         section.appendChild(expand);
