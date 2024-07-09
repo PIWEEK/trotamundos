@@ -477,6 +477,7 @@ function reloadSection(data) {
         text.addEventListener('click', openEditSubtitleEv, false);
 
         expand = document.createElement('img');
+        expand.classList.add('expand-icon');
         if (collapsed.includes(data.id)) {
             expand.src = 'icons/expand.png';
             section.classList.remove("draggable");
