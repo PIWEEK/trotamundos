@@ -123,6 +123,7 @@ var tripsList = {};
 var currentTripId = null;
 var currentSectionId = null;
 var currentSection = null;
+var subtitleSelected = {};
 
 var sectionsSortable = null;
 var sortedSections = [];
@@ -133,10 +134,19 @@ if (localStorage.tripsList) {
     tripsList = JSON.parse(localStorage.tripsList);
 }
 
+if (localStorage.subtitleSelected) {
+    subtitleSelected = JSON.parse(localStorage.subtitleSelected);
+}
+
 ////////////////////
 
 function save() {
     localStorage.tripsList = JSON.stringify(tripsList);
+    collapseSections();
+}
+
+function saveSubtitleSelected() {
+    localStorage.subtitleSelected = JSON.stringify(subtitleSelected);
 }
 
 function getSection(trip, sectionId) {
@@ -182,7 +192,7 @@ function initTripsSortable(tripsContainer) {
     Sortable.create(tripsContainer, {
         animation: 150,
         draggable: '.draggable',
-        handle: '.icon',
+        handle: '.icon-handle',
         dragoverBubble: true,
     });
 
@@ -196,7 +206,7 @@ function initSectionsSortable(sectionsContainer) {
     sectionsSortable = Sortable.create(sectionsContainer, {
         animation: 150,
         draggable: '.draggable',
-        handle: '.icon',
+        handle: '.icon-handle',
         dragoverBubble: true,
         onEnd: updateSectionOrder
     });
@@ -338,6 +348,7 @@ function reloadTrip(data) {
 
     image = document.createElement('img');
     image.classList.add('icon');
+    image.classList.add('icon-handle');
     image.src = 'icons/trotamundos.png'
     trip.appendChild(image);
 
@@ -417,10 +428,12 @@ function reloadSection(data) {
 
     section = document.createElement('div');
     section.dataset.sectionId = data.id;
+    section.dataset.type = data.type;
     section.classList.add('draggable');
     section.classList.add('section-item');
     img = document.createElement('img');
     img.classList.add('icon');
+    img.classList.add('icon-handle');
 
     if ('text' == data.type) {
         img.src = 'icons/font.png';
@@ -454,6 +467,7 @@ function reloadSection(data) {
         loadImageFromDB(data.imageId, photo.id);
     } else if ('subtitle' == data.type) {
         img.src = 'icons/title.png';
+        img.classList.remove('icon-handle');
         text = document.createElement('div');
         text.classList.add('container');
         text.classList.add('text-container');
@@ -463,8 +477,14 @@ function reloadSection(data) {
         text.dataset.sectionId = data.id;
         text.addEventListener('click', openEditSubtitleEv, false);
 
+        let radio = document.createElement('img');
+        radio.dataset.sectionId = data.id;
+        radio.src = 'icons/radio_off.png';
+        radio.addEventListener('click', selectSubtitleEv, false);
+
         section.appendChild(img);
         section.appendChild(text);
+        section.appendChild(radio);
     }
     document.getElementById('sections-container').appendChild(section);
 }
@@ -496,6 +516,8 @@ function openViewTrip() {
     document.getElementById('trip-screen').classList.remove('hidden');
     document.getElementById('section-screen').classList.add('hidden');
     window.scrollTo(0, document.body.scrollHeight);
+
+    collapseSections();
 }
 
 function openEditTrip() {
@@ -563,6 +585,35 @@ function saveTrip() {
     }
 }
 
+
+function repositionSections(newSectionId) {
+    var sections = document.getElementsByClassName('section-item');
+    var newPos = 0;
+    var found = false;
+    for (let i = 0; i < sections.length; i++) {
+        if (found && ('subtitle' == sections[i].dataset.type)) {
+            // Collapsed subtitle after open one
+            break;
+        }
+        if (sections[i].dataset.sectionId == subtitleSelected[currentTripId]) {
+            found = true;
+        }
+        newPos = i;
+    }
+
+    // Move sections
+    for (const s in trip.sections) {
+        if (s.pos >= newPos) {
+            s.pos += 1;
+        }
+    }
+
+    console.log('newSectionId', newSectionId);
+    console.log(tripsList[currentTripId].sections);
+    tripsList[currentTripId].sections[newSectionId].pos = newPos;
+    save();
+}
+
 function saveText() {
     if (document.getElementById('section-text').checkValidity()) {
         var trip = tripsList[currentTripId];
@@ -577,7 +628,7 @@ function saveText() {
 
         trip.sections[section.id] = section;
         tripsList[trip.id] = trip;
-        save();
+        repositionSections(section.id);
 
         currentTripId = trip.id;
         openViewTrip();
@@ -605,7 +656,7 @@ function saveImage() {
 
             trip.sections[section.id] = section;
             tripsList[trip.id] = trip;
-            save();
+            repositionSections(section.id);
 
             //Delete old image
             if (oldImageId != null) {
@@ -759,6 +810,52 @@ function openEditSubtitle() {
     openSection('section-subtitle');
 }
 
+
+function selectSubtitleEv(ev) {
+    handleSelectSubtitleEv(ev.currentTarget.dataset.sectionId);
+}
+
+function handleSelectSubtitleEv(id) {
+    subtitleSelected[currentTripId] = id;
+    saveSubtitleSelected();
+    collapseSections();
+}
+
+function collapseSections() {
+
+    let sections = document.getElementsByClassName('section-item');
+
+    if (!subtitleSelected[currentTripId]) {
+        for (let i = sections.length - 1; i > 0; i--) {
+            if ('subtitle' == sections[i].dataset.type) {
+                subtitleSelected[currentTripId] = sections[i].dataset.sectionId;
+                saveSubtitleSelected();
+                break;
+            }
+        }
+    }
+
+
+    let show = true;
+    for (let i = 0; i < sections.length; i++) {
+        let section = sections[i];
+        if (show || ('subtitle' == section.dataset.type)) {
+            section.classList.remove('collapsed');
+        } else {
+            section.classList.add('collapsed');
+        }
+
+        if ('subtitle' == section.dataset.type) {
+            if (subtitleSelected[currentTripId] == section.dataset.sectionId) {
+                show = true;
+                section.lastChild.src = 'icons/radio_on.png';
+            } else {
+                show = false;
+                section.lastChild.src = 'icons/radio_off.png';
+            }
+        }
+    }
+}
 
 function previewImage(ev) {
     handleImagePreview('trip-image', 'trip-image-preview');
